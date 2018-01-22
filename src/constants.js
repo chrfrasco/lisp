@@ -1,0 +1,8 @@
+exports = {
+  NUMBER: 'NUMBER',
+  STRING: 'STRING',
+  PAREN: 'PAREN',
+  OPERATOR: 'OPERATOR',
+  IDENTIFIER: 'IDENTIFIER',
+}
+

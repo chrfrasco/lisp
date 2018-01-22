@@ -1,3 +1,10 @@
+const {
+  NUMBER,
+  STRING,
+  PAREN,
+  OPERATOR,
+} = require('./constants')
+
 module.exports = (input) => {
   const tokens = []
   let current = 0
@@ -16,7 +23,7 @@ module.exports = (input) => {
         token += char
         char = input[++current]
       }
-      tokens.push({ type: 'number', value: token })
+      tokens.push({ type: NUMBER, value: token })
       continue
     }
 
@@ -26,18 +33,18 @@ module.exports = (input) => {
         token += char
         char = input[++current]
       }
-      tokens.push({ type: 'identifier', value: token })
+      tokens.push({ type: NUMBER, value: token })
       continue
     }
 
     if (char === '(' || char === ')') {
-      tokens.push({ type: 'paren', value: char })
+      tokens.push({ type: PAREN, value: char })
       current++
       continue
     }
 
     if (isOperator(char)) {
-      tokens.push({ type: 'operator', value: char })
+      tokens.push({ type: OPERATOR, value: char })
       current++
       continue
     }
@@ -49,7 +56,7 @@ module.exports = (input) => {
         token += char
         char = input[++current]
       }
-      tokens.push({ type: 'string', value: token })
+      tokens.push({ type: STRING, value: token })
       char = input[++current] // skip closing quote
       continue
     }
