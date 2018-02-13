@@ -4,6 +4,11 @@ const {
   CALL_EXPRESSION,
   NUMBER_LITERAL,
   STRING_LITERAL,
+  PAREN,
+  OPERATOR,
+  NUMBER,
+  IDENTIFIER,
+  STRING,
 } = require('../src/constants')
 
 test('exports a function', () => {
@@ -18,7 +23,13 @@ test('handles empty list', () => {
 })
 
 test('operators', () => {
-  const input = ['(', '+', '1', '1', ')']
+  const input = [
+    { type: PAREN, value: '(' },
+    { type: OPERATOR, value: '+' },
+    { type: NUMBER, value: '1' },
+    { type: NUMBER, value: '1' },
+    { type: PAREN, value: ')' }
+  ]
   const output = {
     type: PROGRAM,
     body: [
@@ -32,10 +43,17 @@ test('operators', () => {
       }
     ]
   }
+  expect(parse(input)).toEqual(output)
 })
 
 test('identifiers', () => {
-  const input = ['(', 'add', '1', '1', ')']
+  const input = [
+    { type: PAREN, value: '(' },
+    { type: IDENTIFIER, value: 'add' },
+    { type: NUMBER, value: '1' },
+    { type: NUMBER, value: '1' },
+    { type: PAREN, value: ')' }
+  ]
   const output = {
     type: PROGRAM,
     body: [
@@ -49,10 +67,16 @@ test('identifiers', () => {
       }
     ]
   }
+  expect(parse(input)).toEqual(output)
 })
 
 test('string literals', () => {
-  const input = ['(', 'print', '"hello, world"', ')']
+  const input = [
+    { type: PAREN, value: '(' },
+    { type: IDENTIFIER, value: 'print' },
+    { type: STRING, value: 'hello, world' },
+    { type: PAREN, value: ')' }
+  ]
   const output = {
     type: PROGRAM,
     body: [
@@ -65,26 +89,44 @@ test('string literals', () => {
       }
     ]
   }
+  expect(parse(input)).toEqual(output)
 })
 
 test('nested call expressions', () => {
-  const input = ['(', 'print', '(', '+', '1', '1', ')', ')']
+  const input = [
+    { type: PAREN, value: '(' },
+    { type: IDENTIFIER, value: 'print' },
+    { type: PAREN, value: '(' },
+    { type: OPERATOR, value: '+' },
+    { type: NUMBER, value: '1' },
+    { type: NUMBER, value: '1' },
+    { type: PAREN, value: ')' },
+    { type: PAREN, value: ')' }
+  ]
   const output = {
     type: PROGRAM,
     body: [
       {
-        type: CALL_EXPRESSION,
         name: 'print',
+        type: CALL_EXPRESSION,
         params: [
           {
+            name: '+',
             type: CALL_EXPRESSION,
-            name: 'print',
             params: [
-              { type: STRING_LITERAL, value: 'hello, world' },
+              {
+                value: '1',
+                type: NUMBER_LITERAL,
+              },
+              {
+                value: '1',
+                type: NUMBER_LITERAL
+              }
             ]
           }
         ]
       }
     ]
   }
+  expect(parse(input)).toEqual(output)
 })

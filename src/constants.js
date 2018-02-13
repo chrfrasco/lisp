@@ -1,4 +1,4 @@
-exports = {
+module.exports = {
   NUMBER: 'NUMBER',
   STRING: 'STRING',
   PAREN: 'PAREN',
@@ -10,4 +10,3 @@ exports = {
   STRING_LITERAL: 'STRING_LITERAL',
   CALL_EXPRESSION: 'CALL_EXPRESSION',
 }
-

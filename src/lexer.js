@@ -3,11 +3,20 @@ const {
   STRING,
   PAREN,
   OPERATOR,
+  IDENTIFIER,
 } = require('./constants')
 
 module.exports = (input) => {
   const tokens = []
   let current = 0
+
+  function takeCharsWhile(predicate) {
+    let value = ''
+    while (predicate(input[current])) {
+      value += input[current++]
+    }
+    return value
+  }
 
   while (current < input.length) {
     let char = input[current]
@@ -16,24 +25,16 @@ module.exports = (input) => {
       current++
       continue
     }
-    
+
     if (isNumeric(char)) {
-      let token = ''
-      while (isNumeric(char)) {
-        token += char
-        char = input[++current]
-      }
-      tokens.push({ type: NUMBER, value: token })
+      const value = takeCharsWhile(isNumeric)
+      tokens.push({ type: NUMBER, value })
       continue
     }
 
     if (isAlpha(char)) {
-      let token = ''
-      while (isAlpha(char) || isNumeric(char)) {
-        token += char
-        char = input[++current]
-      }
-      tokens.push({ type: NUMBER, value: token })
+      const value = takeCharsWhile(isAlphaNumeric)
+      tokens.push({ type: IDENTIFIER, value })
       continue
     }
 
@@ -50,14 +51,12 @@ module.exports = (input) => {
     }
 
     if (char === '"') {
-      let token = ''
-      char = input[++current] // skip opening quote
-      while (char !== '"') {
-        token += char
-        char = input[++current]
-      }
-      tokens.push({ type: STRING, value: token })
-      char = input[++current] // skip closing quote
+      current++ // skip open quote
+
+      const value = takeCharsWhile(s => s !== '"')
+      tokens.push({ type: STRING, value })
+
+      current++ // skip closing quote
       continue
     }
 
@@ -71,15 +70,18 @@ function isWhitespace(s) {
   return /\s/.test(s)
 }
 
+function isAlphaNumeric(s) {
+  return isAlpha(s) || isNumeric(s)
+}
+
 function isAlpha(s) {
   return /[a-z]/i.test(s)
 }
 
 function isNumeric(s) {
-  return /[0-9]+/.test(s)
+  return /[0-9]/.test(s)
 }
 
 function isOperator(s) {
   return ['+', '-', '*', '/'].includes(s)
 }
-

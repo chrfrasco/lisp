@@ -52,7 +52,7 @@ module.exports = (tokens) => {
       return node
     }
 
-    throw new TypeError(token.type)
+    throw new TypeError(`unknown token of type ${token.type}: ${token.value}`)
   }
 
   const ast = {
