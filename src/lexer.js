@@ -4,6 +4,8 @@ const {
   PAREN,
   OPERATOR,
   IDENTIFIER,
+  KEYWORD,
+  KEYWORDS
 } = require('./constants')
 
 module.exports = (input) => {
@@ -34,7 +36,11 @@ module.exports = (input) => {
 
     if (isAlpha(char)) {
       const value = takeCharsWhile(isAlphaNumeric)
-      tokens.push({ type: IDENTIFIER, value })
+      if (KEYWORDS[value] != null) {
+        tokens.push({ type: KEYWORD, value })
+      } else {
+        tokens.push({ type: IDENTIFIER, value })
+      }
       continue
     }
 

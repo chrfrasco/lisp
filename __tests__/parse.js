@@ -4,11 +4,13 @@ const {
   CALL_EXPRESSION,
   NUMBER_LITERAL,
   STRING_LITERAL,
+  VARIABLE_ASSIGNMENT,
   PAREN,
   OPERATOR,
   NUMBER,
   IDENTIFIER,
   STRING,
+  KEYWORD
 } = require('../src/constants')
 
 test('exports a function', () => {
@@ -86,6 +88,27 @@ test('string literals', () => {
         params: [
           { type: STRING_LITERAL, value: 'hello, world' },
         ]
+      }
+    ]
+  }
+  expect(parse(input)).toEqual(output)
+})
+
+test('variable assignment', () => {
+  const input = [
+    { value: '(', type: PAREN },
+    { value: 'def', type: KEYWORD },
+    { value: 'x', type: IDENTIFIER },
+    { value: '1', type: NUMBER },
+    { value: ')', type: PAREN }
+  ]
+  const output = {
+    type: PROGRAM,
+    body: [
+      {
+        type: VARIABLE_ASSIGNMENT,
+        name: 'x',
+        value: { type: NUMBER_LITERAL, value: '1' }
       }
     ]
   }
