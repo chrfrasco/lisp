@@ -14,7 +14,11 @@ function ask() {
       process.exit(0)
     }
 
-    lisp(answer)
+    const result = lisp(answer)
+    if (result != null) {
+      console.log(result)
+    }
+
     ask()
   })
 }
