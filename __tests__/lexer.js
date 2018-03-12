@@ -62,7 +62,7 @@ test("handles keywords", () => {
   input = `(fn foo [x y] 1)`
   output = [
     { value: "(", type: PAREN },
-    { value: "fn", type: KEYWORD },
+    { value: "n", type: KEYWORD },
     { value: "foo", type: IDENTIFIER },
     { value: "x", type: PARAMETER },
     { value: "y", type: PARAMETER },

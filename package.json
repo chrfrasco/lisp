@@ -4,8 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "test": "jest --watch",
-    "precommit": "pretty-quick --staged"
+    "test": "jest",
+    "precommit": "pretty-quick --staged && npm run test"
   },
   "devDependencies": {
     "husky": "^0.14.3",
