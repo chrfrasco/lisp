@@ -1,30 +1,30 @@
-const NUMBER = 'NUMBER'
-const STRING = 'STRING'
-const PAREN = 'PAREN'
-const OPERATOR = 'OPERATOR'
-const IDENTIFIER = 'IDENTIFIER'
-const KEYWORD = 'KEYWORD'
-const PARAMETER = 'PARAMETER'
+const NUMBER = "NUMBER"
+const STRING = "STRING"
+const PAREN = "PAREN"
+const OPERATOR = "OPERATOR"
+const IDENTIFIER = "IDENTIFIER"
+const KEYWORD = "KEYWORD"
+const PARAMETER = "PARAMETER"
 
-const PROGRAM = 'PROGRAM'
-const NUMBER_LITERAL = 'NUMBER_LITERAL'
-const STRING_LITERAL = 'STRING_LITERAL'
-const CALL_EXPRESSION = 'CALL_EXPRESSION'
-const VARIABLE_ASSIGNMENT = 'VARIABLE_ASSIGNMENT'
-const FUNCTION_DECLARATION = 'FUNCTION_DECLARATION'
+const PROGRAM = "PROGRAM"
+const NUMBER_LITERAL = "NUMBER_LITERAL"
+const STRING_LITERAL = "STRING_LITERAL"
+const CALL_EXPRESSION = "CALL_EXPRESSION"
+const VARIABLE_ASSIGNMENT = "VARIABLE_ASSIGNMENT"
+const FUNCTION_DECLARATION = "FUNCTION_DECLARATION"
 
 const KEYWORDS = {
   def: VARIABLE_ASSIGNMENT,
-  fn: FUNCTION_DECLARATION,
+  fn: FUNCTION_DECLARATION
 }
 
 const DEFAULT_GLOBALS = {
   print: console.log.bind(console),
-  '+': (a, b) => a + b,
-  '*': (a, b) => a * b,
-  '-': (a, b) => a - b,
-  '/': (a, b) => a / b,
-  'pow': (a, b) => a ** b
+  "+": (a, b) => a + b,
+  "*": (a, b) => a * b,
+  "-": (a, b) => a - b,
+  "/": (a, b) => a / b,
+  pow: (a, b) => a ** b
 }
 
 module.exports = {

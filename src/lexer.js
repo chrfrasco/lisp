@@ -7,14 +7,14 @@ const {
   KEYWORD,
   KEYWORDS,
   PARAMETER
-} = require('./constants')
+} = require("./constants")
 
-module.exports = (input) => {
+module.exports = input => {
   const tokens = []
   let current = 0
 
   function takeCharsWhile(predicate) {
-    let value = ''
+    let value = ""
     while (predicate(input[current])) {
       value += input[current++]
     }
@@ -45,21 +45,20 @@ module.exports = (input) => {
       continue
     }
 
-    if (char === '(' || char === ')') {
+    if (char === "(" || char === ")") {
       tokens.push({ type: PAREN, value: char })
       current++
       continue
     }
 
-    if (char === '[') {
+    if (char === "[") {
       current++
-      const value = takeCharsWhile(s => s !== ']')
-      value.trim()
+      const value = takeCharsWhile(s => s !== "]")
+      value
+        .trim()
         .split(/\W+/)
         .filter(s => s !== "")
-        .forEach(arg =>
-          tokens.push({ type: PARAMETER, value: arg })
-        )
+        .forEach(arg => tokens.push({ type: PARAMETER, value: arg }))
       current++
       continue
     }
@@ -103,5 +102,5 @@ function isNumeric(s) {
 }
 
 function isOperator(s) {
-  return ['+', '-', '*', '/'].includes(s)
+  return ["+", "-", "*", "/"].includes(s)
 }

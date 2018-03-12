@@ -12,9 +12,9 @@ const {
   KEYWORDS,
   PARAMETER,
   FUNCTION_DECLARATION
-} = require('../src/constants')
+} = require("../src/constants")
 
-module.exports = (tokens) => {
+module.exports = tokens => {
   let current = 0
 
   function walk() {
@@ -36,7 +36,7 @@ module.exports = (tokens) => {
       }
     }
 
-    if (token.type === PAREN && token.value === '(') {
+    if (token.type === PAREN && token.value === "(") {
       token = tokens[++current]
 
       let node
@@ -72,7 +72,10 @@ module.exports = (tokens) => {
    */
   function handleVariableAssignment() {
     let token = tokens[++current]
-    assert(token.type === IDENTIFIER, `expected IDENTIFIER, got ${token.type}: ${token.value}`)
+    assert(
+      token.type === IDENTIFIER,
+      `expected IDENTIFIER, got ${token.type}: ${token.value}`
+    )
     const name = token.value
     current++
     const node = {
@@ -121,9 +124,9 @@ module.exports = (tokens) => {
 
     token = tokens[++current]
     while (
-      (token.type !== PAREN) ||
-      (token.type === PAREN && token.value !== ')')
-      ) {
+      token.type !== PAREN ||
+      (token.type === PAREN && token.value !== ")")
+    ) {
       node.params.push(walk())
       token = tokens[current]
     }
@@ -134,7 +137,7 @@ module.exports = (tokens) => {
 
   const ast = {
     type: PROGRAM,
-    body: [],
+    body: []
   }
 
   while (current < tokens.length) {
@@ -144,7 +147,7 @@ module.exports = (tokens) => {
   return ast
 }
 
-function assert(assertion, message, errConstructor=TypeError) {
+function assert(assertion, message, errConstructor = TypeError) {
   if (!assertion) {
     throw new errConstructor(message)
   }

@@ -1,8 +1,8 @@
-const constants = require('./constants')
+const constants = require("./constants")
 
 module.exports = run
 
-function run(node, globals=constants.DEFAULT_GLOBALS) {
+function run(node, globals = constants.DEFAULT_GLOBALS) {
   switch (node.type) {
     case constants.PROGRAM:
       const result = node.body.map(childNode => run(childNode, globals))

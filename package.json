@@ -4,9 +4,17 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "test": "jest --watch"
+    "test": "jest --watch",
+    "precommit": "pretty-quick --staged"
   },
   "devDependencies": {
-    "jest": "^22.1.4"
+    "husky": "^0.14.3",
+    "jest": "^22.1.4",
+    "prettier": "1.11.1",
+    "pretty-quick": "^1.4.1"
+  },
+  "prettier": {
+    "semi": false,
+    "singleQuote": false
   }
 }

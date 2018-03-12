@@ -1,33 +1,29 @@
-const run = require('../src/run')
-const constants = require('../src/constants')
+const run = require("../src/run")
+const constants = require("../src/constants")
 
-test('exports a function', () => {
-  expect(typeof run).toBe('function')
+test("exports a function", () => {
+  expect(typeof run).toBe("function")
 })
 
-test('runs a full program', () => {
+test("runs a full program", () => {
   const program = {
     type: constants.PROGRAM,
     body: [
       {
         type: constants.CALL_EXPRESSION,
-        name: 'print',
-        params: [
-          { type: constants.STRING_LITERAL, value: 'hello, world' },
-        ]
+        name: "print",
+        params: [{ type: constants.STRING_LITERAL, value: "hello, world" }]
       }
     ]
   }
   expect(run(program))
 })
 
-test('globals can be mocked', () => {
+test("globals can be mocked", () => {
   const program = {
     type: constants.CALL_EXPRESSION,
-    name: 'print',
-    params: [
-      { type: constants.STRING_LITERAL, value: 'hello, world' },
-    ]
+    name: "print",
+    params: [{ type: constants.STRING_LITERAL, value: "hello, world" }]
   }
   const print = jest.fn()
   const mockedGlobals = Object.assign({}, constants.DEFAULT_GLOBALS, {
@@ -35,29 +31,29 @@ test('globals can be mocked', () => {
   })
   run(program, mockedGlobals)
   expect(print.mock.calls.length).toEqual(1)
-  expect(print.mock.calls[0][0]).toEqual('hello, world')
+  expect(print.mock.calls[0][0]).toEqual("hello, world")
 })
 
-test('adds two numbers', () => {
+test("adds two numbers", () => {
   const program = {
     type: constants.CALL_EXPRESSION,
-    name: '+',
+    name: "+",
     params: [
-      { type: constants.NUMBER_LITERAL, value: '1' },
-      { type: constants.NUMBER_LITERAL, value: '1' }
+      { type: constants.NUMBER_LITERAL, value: "1" },
+      { type: constants.NUMBER_LITERAL, value: "1" }
     ]
   }
   expect(run(program)).toEqual(2)
 })
 
-test('can assign variables', () => {
+test("can assign variables", () => {
   const program = {
     type: constants.PROGRAM,
     body: [
       {
         type: constants.VARIABLE_ASSIGNMENT,
-        name: 'x',
-        value: { type: constants.NUMBER_LITERAL, value: '1' }
+        name: "x",
+        value: { type: constants.NUMBER_LITERAL, value: "1" }
       }
     ]
   }
@@ -66,32 +62,32 @@ test('can assign variables', () => {
   expect(mockedGlobals.x).toBe(1)
 })
 
-test('throws an error when given a program containing invalid tokens', () => {
+test("throws an error when given a program containing invalid tokens", () => {
   const program = {
-    type: '__GARBAGE__',
+    type: "__GARBAGE__",
     value: null
   }
   expect(() => run(program)).toThrow(TypeError)
 })
 
-test('function declaration', () => {
+test("function declaration", () => {
   const program = {
     type: constants.PROGRAM,
     body: [
       {
         type: constants.FUNCTION_DECLARATION,
-        name: 'add',
-        params: ['x', 'y'],
+        name: "add",
+        params: ["x", "y"],
         body: {
-          name: '+',
+          name: "+",
           type: constants.CALL_EXPRESSION,
           params: [
             {
-              value: 'x',
-              type: constants.IDENTIFIER,
+              value: "x",
+              type: constants.IDENTIFIER
             },
             {
-              value: 'y',
+              value: "y",
               type: constants.IDENTIFIER
             }
           ]
@@ -99,18 +95,18 @@ test('function declaration', () => {
       },
       {
         type: constants.CALL_EXPRESSION,
-        name: 'print',
+        name: "print",
         params: [
           {
-            name: 'add',
+            name: "add",
             type: constants.CALL_EXPRESSION,
             params: [
               {
-                value: '1',
-                type: constants.NUMBER_LITERAL,
+                value: "1",
+                type: constants.NUMBER_LITERAL
               },
               {
-                value: '1',
+                value: "1",
                 type: constants.NUMBER_LITERAL
               }
             ]
