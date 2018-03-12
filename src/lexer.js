@@ -5,7 +5,8 @@ const {
   OPERATOR,
   IDENTIFIER,
   KEYWORD,
-  KEYWORDS
+  KEYWORDS,
+  PARAMETER
 } = require('./constants')
 
 module.exports = (input) => {
@@ -50,6 +51,19 @@ module.exports = (input) => {
       continue
     }
 
+    if (char === '[') {
+      current++
+      const value = takeCharsWhile(s => s !== ']')
+      value.trim()
+        .split(/\W+/)
+        .filter(s => s !== "")
+        .forEach(arg =>
+          tokens.push({ type: PARAMETER, value: arg })
+        )
+      current++
+      continue
+    }
+
     if (isOperator(char)) {
       tokens.push({ type: OPERATOR, value: char })
       current++
@@ -66,7 +80,7 @@ module.exports = (input) => {
       continue
     }
 
-    throw `Unrecognised character ${char}`
+    throw TypeError(`Unrecognised character ${char}`)
   }
 
   return tokens

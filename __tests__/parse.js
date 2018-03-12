@@ -5,12 +5,14 @@ const {
   NUMBER_LITERAL,
   STRING_LITERAL,
   VARIABLE_ASSIGNMENT,
+  FUNCTION_DECLARATION,
   PAREN,
   OPERATOR,
   NUMBER,
   IDENTIFIER,
   STRING,
-  KEYWORD
+  KEYWORD,
+  PARAMETER
 } = require('../src/constants')
 
 test('exports a function', () => {
@@ -109,6 +111,123 @@ test('variable assignment', () => {
         type: VARIABLE_ASSIGNMENT,
         name: 'x',
         value: { type: NUMBER_LITERAL, value: '1' }
+      }
+    ]
+  }
+  expect(parse(input)).toEqual(output)
+})
+
+test('function declaration with no arguments', () => {
+  const input = [
+    { value: '(', type: PAREN },
+    { value: 'fn', type: KEYWORD },
+    { value: 'foo', type: IDENTIFIER },
+    { value: 'x', type: PARAMETER },
+    { value: '1', type: NUMBER },
+    { value: ')', type: PAREN }
+  ]
+  const output = {
+    type: PROGRAM,
+    body: [
+      {
+        type: FUNCTION_DECLARATION,
+        name: 'foo',
+        params: ['x'],
+        body: { type: NUMBER_LITERAL, value: '1' }
+      }
+    ]
+  }
+  expect(parse(input)).toEqual(output)
+})
+
+test('function declaration with multiple arguments', () => {
+  let input = [
+    { value: '(', type: PAREN },
+    { value: 'fn', type: KEYWORD },
+    { value: 'foo', type: IDENTIFIER },
+    { value: 'x', type: PARAMETER },
+    { value: '1', type: NUMBER },
+    { value: ')', type: PAREN }
+  ]
+  let output = {
+    type: PROGRAM,
+    body: [
+      {
+        type: FUNCTION_DECLARATION,
+        name: 'foo',
+        params: ['x'],
+        body: { type: NUMBER_LITERAL, value: '1' }
+      }
+    ]
+  }
+  expect(parse(input)).toEqual(output)
+
+  input = [
+    { value: '(', type: PAREN },
+    { value: 'fn', type: KEYWORD },
+    { value: 'foo', type: IDENTIFIER },
+    { value: 'x', type: PARAMETER },
+    { value: 'y', type: PARAMETER },
+    { value: '1', type: NUMBER },
+    { value: ')', type: PAREN }
+  ]
+  output = {
+    type: PROGRAM,
+    body: [
+      {
+        type: FUNCTION_DECLARATION,
+        name: 'foo',
+        params: ['x', 'y'],
+        body: { type: NUMBER_LITERAL, value: '1' }
+      }
+    ]
+  }
+  expect(parse(input)).toEqual(output)
+})
+
+test('function declaration with complex body', () => {
+  const input = [
+    { value: '(', type: PAREN },
+    { value: 'fn', type: KEYWORD },
+    { value: 'foo', type: IDENTIFIER },
+    { value: 'x', type: PARAMETER },
+    { type: PAREN, value: '(' },
+    { type: IDENTIFIER, value: 'print' },
+    { type: PAREN, value: '(' },
+    { type: OPERATOR, value: '+' },
+    { type: NUMBER, value: '1' },
+    { type: NUMBER, value: '1' },
+    { type: PAREN, value: ')' },
+    { type: PAREN, value: ')' },
+    { value: ')', type: PAREN }
+  ]
+  const output = {
+    type: PROGRAM,
+    body: [
+      {
+        type: FUNCTION_DECLARATION,
+        name: 'foo',
+        params: ['x'],
+        body: {
+          name: 'print',
+          type: CALL_EXPRESSION,
+          params: [
+            {
+              name: '+',
+              type: CALL_EXPRESSION,
+              params: [
+                {
+                  value: '1',
+                  type: NUMBER_LITERAL,
+                },
+                {
+                  value: '1',
+                  type: NUMBER_LITERAL
+                }
+              ]
+            }
+          ]
+        }
       }
     ]
   }

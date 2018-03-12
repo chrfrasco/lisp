@@ -5,7 +5,8 @@ const {
   PAREN,
   OPERATOR,
   IDENTIFIER,
-  KEYWORD
+  KEYWORD,
+  PARAMETER
 } = require('../src/constants')
 
 test('exports a function', () => {
@@ -48,11 +49,23 @@ test('handles strings', () => {
 })
 
 test('handles keywords', () => {
-  const input = `(def x 1)`
-  const output = [
+  let input = `(def x 1)`
+  let output = [
     { value: '(', type: PAREN },
     { value: 'def', type: KEYWORD },
     { value: 'x', type: IDENTIFIER },
+    { value: '1', type: NUMBER },
+    { value: ')', type: PAREN }
+  ]
+  expect(lexer(input)).toEqual(output)
+
+  input = `(fn foo [x y] 1)`
+  output = [
+    { value: '(', type: PAREN },
+    { value: 'fn', type: KEYWORD },
+    { value: 'foo', type: IDENTIFIER },
+    { value: 'x', type: PARAMETER },
+    { value: 'y', type: PARAMETER },
     { value: '1', type: NUMBER },
     { value: ')', type: PAREN }
   ]

@@ -73,3 +73,57 @@ test('throws an error when given a program containing invalid tokens', () => {
   }
   expect(() => run(program)).toThrow(TypeError)
 })
+
+test('function declaration', () => {
+  const program = {
+    type: constants.PROGRAM,
+    body: [
+      {
+        type: constants.FUNCTION_DECLARATION,
+        name: 'add',
+        params: ['x', 'y'],
+        body: {
+          name: '+',
+          type: constants.CALL_EXPRESSION,
+          params: [
+            {
+              value: 'x',
+              type: constants.IDENTIFIER,
+            },
+            {
+              value: 'y',
+              type: constants.IDENTIFIER
+            }
+          ]
+        }
+      },
+      {
+        type: constants.CALL_EXPRESSION,
+        name: 'print',
+        params: [
+          {
+            name: 'add',
+            type: constants.CALL_EXPRESSION,
+            params: [
+              {
+                value: '1',
+                type: constants.NUMBER_LITERAL,
+              },
+              {
+                value: '1',
+                type: constants.NUMBER_LITERAL
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+  const print = jest.fn()
+  const mockedGlobals = Object.assign({}, constants.DEFAULT_GLOBALS, {
+    print
+  })
+  run(program, mockedGlobals)
+  expect(print.mock.calls.length).toEqual(1)
+  expect(print.mock.calls[0][0]).toEqual(2)
+})

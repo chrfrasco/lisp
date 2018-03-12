@@ -9,7 +9,9 @@ const {
   CALL_EXPRESSION,
   VARIABLE_ASSIGNMENT,
   PROGRAM,
-  KEYWORDS
+  KEYWORDS,
+  PARAMETER,
+  FUNCTION_DECLARATION
 } = require('../src/constants')
 
 module.exports = (tokens) => {
@@ -43,6 +45,10 @@ module.exports = (tokens) => {
         if (keywordType === VARIABLE_ASSIGNMENT) {
           node = handleVariableAssignment()
         }
+
+        if (keywordType === FUNCTION_DECLARATION) {
+          node = handleFunctionDeclaration()
+        }
       } else {
         node = handleCallExpression()
       }
@@ -62,28 +68,47 @@ module.exports = (tokens) => {
   }
 
   /**
-   *
    * @returns {{name: string, type: string, value: {type, value}}}
    */
   function handleVariableAssignment() {
     let token = tokens[++current]
-    if (token.type === IDENTIFIER) {
-      const name = token.value
-      current++
-      const node = {
-        name,
-        type: VARIABLE_ASSIGNMENT,
-        value: walk()
-      }
-      current++
-      return node
-    } else {
-      throw new TypeError(`unexpected ${token.type}: ${token.value}`)
+    assert(token.type === IDENTIFIER, `expected IDENTIFIER, got ${token.type}: ${token.value}`)
+    const name = token.value
+    current++
+    const node = {
+      name,
+      type: VARIABLE_ASSIGNMENT,
+      value: walk()
     }
+    current++
+    return node
+  }
+
+  function handleFunctionDeclaration() {
+    let token = tokens[++current]
+
+    assert(token.type === IDENTIFIER, "expected a name")
+    const name = token.value
+
+    let params = []
+    token = tokens[++current]
+    while (token.type === PARAMETER) {
+      params.push(token.value)
+      token = tokens[++current]
+    }
+
+    const node = {
+      type: FUNCTION_DECLARATION,
+      name,
+      params,
+      body: walk()
+    }
+
+    current++
+    return node
   }
 
   /**
-   *
    * @returns {{type: string, name: string, params: Array}}
    */
   function handleCallExpression() {
@@ -117,4 +142,10 @@ module.exports = (tokens) => {
   }
 
   return ast
+}
+
+function assert(assertion, message, errConstructor=TypeError) {
+  if (!assertion) {
+    throw new errConstructor(message)
+  }
 }
