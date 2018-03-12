@@ -5,11 +5,6 @@ test('exports a function', () => {
   expect(typeof lisp).toEqual('function')
 })
 
-test('does not return anything', () => {
-  const ret = lisp(`(+ 1 1)`)
-  expect(ret).toBeUndefined()
-})
-
 test('runs correctly', () => {
   const print = jest.fn()
   const mockedGlobals = Object.assign({}, constants.DEFAULT_GLOBALS, {
