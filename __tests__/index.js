@@ -1,4 +1,4 @@
-const lisp = require("../")
+const lisp = require("../src")
 const constants = require("../src/constants")
 
 test("exports a function", () => {

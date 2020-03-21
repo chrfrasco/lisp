@@ -1,20 +1,14 @@
 {
   "name": "lisp",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "src/index.js",
   "license": "MIT",
   "scripts": {
     "test": "jest",
-    "precommit": "pretty-quick --staged && npm run test"
+    "format": "prettier --write src/**/*.js"
   },
   "devDependencies": {
-    "husky": "^0.14.3",
-    "jest": "^22.1.4",
-    "prettier": "1.11.1",
-    "pretty-quick": "^1.4.1"
-  },
-  "prettier": {
-    "semi": false,
-    "singleQuote": false
+    "jest": "^25.1.0",
+    "prettier": "^1.19.1"
   }
 }

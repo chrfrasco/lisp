@@ -7,100 +7,100 @@ const {
   KEYWORD,
   KEYWORDS,
   PARAMETER
-} = require("./constants")
+} = require("./constants");
 
 module.exports = input => {
-  const tokens = []
-  let current = 0
+  const tokens = [];
+  let current = 0;
 
   function takeCharsWhile(predicate) {
-    let value = ""
+    let value = "";
     while (predicate(input[current])) {
-      value += input[current++]
+      value += input[current++];
     }
-    return value
+    return value;
   }
 
   while (current < input.length) {
-    let char = input[current]
+    let char = input[current];
 
     if (isWhitespace(char)) {
-      current++
-      continue
+      current++;
+      continue;
     }
 
     if (isNumeric(char)) {
-      const value = takeCharsWhile(isNumeric)
-      tokens.push({ type: NUMBER, value })
-      continue
+      const value = takeCharsWhile(isNumeric);
+      tokens.push({ type: NUMBER, value });
+      continue;
     }
 
     if (isAlpha(char)) {
-      const value = takeCharsWhile(isAlphaNumeric)
+      const value = takeCharsWhile(isAlphaNumeric);
       if (KEYWORDS[value] != null) {
-        tokens.push({ type: KEYWORD, value })
+        tokens.push({ type: KEYWORD, value });
       } else {
-        tokens.push({ type: IDENTIFIER, value })
+        tokens.push({ type: IDENTIFIER, value });
       }
-      continue
+      continue;
     }
 
     if (char === "(" || char === ")") {
-      tokens.push({ type: PAREN, value: char })
-      current++
-      continue
+      tokens.push({ type: PAREN, value: char });
+      current++;
+      continue;
     }
 
     if (char === "[") {
-      current++
-      const value = takeCharsWhile(s => s !== "]")
+      current++;
+      const value = takeCharsWhile(s => s !== "]");
       value
         .trim()
         .split(/\W+/)
         .filter(s => s !== "")
-        .forEach(arg => tokens.push({ type: PARAMETER, value: arg }))
-      current++
-      continue
+        .forEach(arg => tokens.push({ type: PARAMETER, value: arg }));
+      current++;
+      continue;
     }
 
     if (isOperator(char)) {
-      tokens.push({ type: OPERATOR, value: char })
-      current++
-      continue
+      tokens.push({ type: OPERATOR, value: char });
+      current++;
+      continue;
     }
 
     if (char === '"') {
-      current++ // skip open quote
+      current++; // skip open quote
 
-      const value = takeCharsWhile(s => s !== '"')
-      tokens.push({ type: STRING, value })
+      const value = takeCharsWhile(s => s !== '"');
+      tokens.push({ type: STRING, value });
 
-      current++ // skip closing quote
-      continue
+      current++; // skip closing quote
+      continue;
     }
 
-    throw TypeError(`Unrecognised character ${char}`)
+    throw TypeError(`Unrecognised character ${char}`);
   }
 
-  return tokens
-}
+  return tokens;
+};
 
 function isWhitespace(s) {
-  return /\s/.test(s)
+  return /\s/.test(s);
 }
 
 function isAlphaNumeric(s) {
-  return isAlpha(s) || isNumeric(s)
+  return isAlpha(s) || isNumeric(s);
 }
 
 function isAlpha(s) {
-  return /[a-z]/i.test(s)
+  return /[a-z]/i.test(s);
 }
 
 function isNumeric(s) {
-  return /[0-9]/.test(s)
+  return /[0-9]/.test(s);
 }
 
 function isOperator(s) {
-  return ["+", "-", "*", "/"].includes(s)
+  return ["+", "-", "*", "/"].includes(s);
 }
