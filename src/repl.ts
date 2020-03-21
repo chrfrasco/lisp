@@ -15,8 +15,10 @@ function ask() {
       process.exit(0);
     }
 
-    const result = evaluate(answer);
-    console.log(RuntimeValues.repr(result));
+    if (answer !== "") {
+      const result = evaluate(answer);
+      console.log(RuntimeValues.repr(result));
+    }
 
     ask();
   });

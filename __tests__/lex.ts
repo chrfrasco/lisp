@@ -1,4 +1,4 @@
-import lexer from "../src/lexer";
+import lex from "../src/lex";
 import { Tokens } from "../src/tokens";
 import { ImmutableLocation } from "../src/reader";
 
@@ -24,7 +24,7 @@ test("transforms string into an array of tokens", () => {
     TokWithLoc.number("10"),
     TokWithLoc.paren(")")
   ];
-  expect(lexer(input)).toEqual(output);
+  expect(lex(input)).toEqual(output);
 });
 
 test("handles alphanumeric values", () => {
@@ -36,7 +36,7 @@ test("handles alphanumeric values", () => {
     TokWithLoc.number("5"),
     TokWithLoc.paren(")")
   ];
-  expect(lexer(input)).toEqual(output);
+  expect(lex(input)).toEqual(output);
 });
 
 test("handles strings (single quotes)", () => {
@@ -47,7 +47,7 @@ test("handles strings (single quotes)", () => {
     TokWithLoc.string("hello, world"),
     TokWithLoc.paren(")")
   ];
-  expect(lexer(input)).toEqual(output);
+  expect(lex(input)).toEqual(output);
 });
 
 test("handles strings (double quotes)", () => {
@@ -58,7 +58,7 @@ test("handles strings (double quotes)", () => {
     TokWithLoc.string("hello, world"),
     TokWithLoc.paren(")")
   ];
-  expect(lexer(input)).toEqual(output);
+  expect(lex(input)).toEqual(output);
 });
 
 test("handles keywords", () => {
@@ -70,7 +70,7 @@ test("handles keywords", () => {
     TokWithLoc.number("1"),
     TokWithLoc.paren(")")
   ];
-  expect(lexer(input)).toEqual(output);
+  expect(lex(input)).toEqual(output);
 
   input = `(fn foo [x y] 1)`;
   output = [
@@ -82,7 +82,7 @@ test("handles keywords", () => {
     TokWithLoc.number("1"),
     TokWithLoc.paren(")")
   ];
-  expect(lexer(input)).toEqual(output);
+  expect(lex(input)).toEqual(output);
 
   input = `(fn foo [] 1)`;
   output = [
@@ -92,7 +92,7 @@ test("handles keywords", () => {
     TokWithLoc.number("1"),
     TokWithLoc.paren(")")
   ];
-  expect(lexer(input)).toEqual(output);
+  expect(lex(input)).toEqual(output);
 });
 
 describe("Token.location", () => {
@@ -106,15 +106,15 @@ describe("Token.location", () => {
       Tokens.identifier("x", loc(1, 1, 0)),
       Tokens.paren(")", loc(2, 2, 0))
     ];
-    expect(lexer(input)).toEqual(output);
+    expect(lex(input)).toEqual(output);
   });
 
   test("newline", () => {
-    expect(lexer("\n")).toEqual([Tokens.newline(loc(0, 0, 0))]);
+    expect(lex("\n")).toEqual([Tokens.newline(loc(0, 0, 0))]);
   });
 
   test("newline before simple source", () => {
-    expect(lexer("\n(x)")).toEqual([
+    expect(lex("\n(x)")).toEqual([
       Tokens.newline(loc(0, 0, 0)),
       Tokens.paren("(", loc(1, 0, 1)),
       Tokens.identifier("x", loc(2, 1, 1)),
@@ -131,7 +131,7 @@ describe("Token.location", () => {
       Tokens.number("1", loc(7, 7, 0)),
       Tokens.paren(")", loc(8, 8, 0))
     ];
-    expect(lexer(input)).toEqual(output);
+    expect(lex(input)).toEqual(output);
   });
 
   test("function declaration", () => {
@@ -144,7 +144,7 @@ describe("Token.location", () => {
       Tokens.number("1", loc(10, 10, 0)),
       Tokens.paren(")", loc(11, 11, 0))
     ];
-    expect(lexer(input)).toEqual(output);
+    expect(lex(input)).toEqual(output);
   });
 
   test("function declaration with multiple arguments", () => {
@@ -158,7 +158,7 @@ describe("Token.location", () => {
       Tokens.number("1", loc(12, 12, 0)),
       Tokens.paren(")", loc(13, 13, 0))
     ];
-    expect(lexer(input)).toEqual(output);
+    expect(lex(input)).toEqual(output);
   });
 
   test("multiple lines", () => {
@@ -180,6 +180,6 @@ describe("Token.location", () => {
       Tokens.identifier("z", loc(9, 1, 2)),
       Tokens.paren(")", loc(10, 2, 2))
     ];
-    expect(lexer(input)).toEqual(output);
+    expect(lex(input)).toEqual(output);
   });
 });

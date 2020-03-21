@@ -3,7 +3,7 @@ import { Reader, Location } from "./reader";
 import { Token, Tokens, OperatorChar } from "./tokens";
 import { ErrorAtLocation } from "./error_at_location";
 
-export default function lexer(source: string): Token[] {
+export default function lex(source: string): Token[] {
   const tokens: Token[] = [];
   const reader = new Reader(source);
 
