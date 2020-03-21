@@ -1,7 +1,8 @@
 export class Reader {
+  private readonly location = new MutableLocation();
+
   constructor(
     private readonly source: string,
-    private readonly location: MutableLocation
   ) {}
 
   currentLocation(): Location {

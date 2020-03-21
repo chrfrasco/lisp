@@ -1,11 +1,10 @@
 import { isKeyword } from "./keywords";
-import { MutableLocation, Reader } from "./reader";
+import { Location, Reader } from "./reader";
 import { Token, Tokens, OperatorChar } from "./tokens";
 
 export default function lexer(source: string): Token[] {
   const tokens: Token[] = [];
-  const _location = new MutableLocation();
-  const reader = new Reader(source, _location);
+  const reader = new Reader(source);
 
   while (reader.hasMoreChars()) {
     let char = reader.peek();
@@ -76,7 +75,7 @@ export default function lexer(source: string): Token[] {
       continue;
     }
 
-    throw new TypeError(`Unrecognised character ${char}`);
+    throw new LexError(char, reader.currentLocation());
   }
 
   return tokens;
