@@ -102,10 +102,11 @@ export default function lexer(input: string): Token[] {
       continue;
     }
 
-    if (char === '"') {
+    if (char === '"' || char === `'`) {
+      const quoteKind = char;
       current++; // skip open quote
 
-      const value = takeCharsWhile(s => s !== '"');
+      const value = takeCharsWhile(s => s !== quoteKind);
       tokens.push(Tokens.string(value));
 
       current++; // skip closing quote

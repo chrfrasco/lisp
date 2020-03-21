@@ -24,7 +24,18 @@ test("handles alphanumeric values", () => {
   expect(lexer(input)).toEqual(output);
 });
 
-test("handles strings", () => {
+test("handles strings (single quotes)", () => {
+  const input = `(print 'hello, world')`;
+  const output = [
+    Tokens.paren("("),
+    Tokens.identifier("print"),
+    Tokens.string("hello, world"),
+    Tokens.paren(")")
+  ];
+  expect(lexer(input)).toEqual(output);
+});
+
+test("handles strings (double quotes)", () => {
   const input = `(print "hello, world")`;
   const output = [
     Tokens.paren("("),
