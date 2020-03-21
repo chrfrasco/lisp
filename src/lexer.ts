@@ -1,4 +1,5 @@
 import { isKeyword, Keyword } from "./keywords";
+import { MutableLocation, Reader } from "./reader";
 
 export enum TokenKind {
   NUMBER = "NUMBER",
@@ -42,34 +43,27 @@ export const Tokens = {
   }
 };
 
-export default function lexer(input: string): Token[] {
+export default function lexer(source: string): Token[] {
   const tokens: Token[] = [];
-  let current = 0;
+  const location = new MutableLocation();
+  const reader = new Reader(source, location);
 
-  function takeCharsWhile(predicate: (char: string) => boolean) {
-    let value = "";
-    while (predicate(input[current])) {
-      value += input[current++];
-    }
-    return value;
-  }
-
-  while (current < input.length) {
-    let char = input[current];
+  while (reader.hasMoreChars()) {
+    let char = reader.peek();
 
     if (isWhitespace(char)) {
-      current++;
+      reader.next();
       continue;
     }
 
     if (isNumeric(char)) {
-      const value = takeCharsWhile(isNumeric);
+      const value = reader.takeCharsWhile(isNumeric);
       tokens.push(Tokens.number(value));
       continue;
     }
 
     if (isAlpha(char)) {
-      const value = takeCharsWhile(isAlphaNumeric);
+      const value = reader.takeCharsWhile(isAlphaNumeric);
       if (isKeyword(value)) {
         tokens.push(Tokens.keyword(value));
       } else {
@@ -80,36 +74,36 @@ export default function lexer(input: string): Token[] {
 
     if (char === "(" || char === ")") {
       tokens.push(Tokens.paren(char));
-      current++;
+      reader.next();
       continue;
     }
 
     if (char === "[") {
-      current++;
-      const value = takeCharsWhile(s => s !== "]");
+      reader.next();
+      const value = reader.takeCharsWhile(s => s !== "]");
       value
         .trim()
         .split(/\W+/)
         .filter(s => s !== "")
         .forEach(arg => tokens.push(Tokens.parameter(arg)));
-      current++;
+      reader.next();
       continue;
     }
 
     if (isOperator(char)) {
       tokens.push(Tokens.operator(char));
-      current++;
+      reader.next();
       continue;
     }
 
     if (char === '"' || char === `'`) {
       const quoteKind = char;
-      current++; // skip open quote
+      reader.next(); // skip open quote
 
-      const value = takeCharsWhile(s => s !== quoteKind);
+      const value = reader.takeCharsWhile(s => s !== quoteKind);
       tokens.push(Tokens.string(value));
 
-      current++; // skip closing quote
+      reader.next(); // skip closing quote
       continue;
     }
 
