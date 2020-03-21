@@ -1,112 +1,75 @@
-import parse, { ASTNode } from '../src/parse';
-import {
-  PROGRAM,
-  CALL_EXPRESSION,
-  NUMBER_LITERAL,
-  STRING_LITERAL,
-  VARIABLE_ASSIGNMENT,
-  FUNCTION_DECLARATION,
-} from '../src/constants';
-import { Token, Tokens } from '../src/lexer';
+import parse, { ASTNodes } from '../src/parse';
+import { Tokens } from '../src/lexer';
 
 test("handles empty list", () => {
-  expect(parse([])).toEqual({
-    type: PROGRAM,
-    body: []
-  })
+  expect(parse([])).toEqual(ASTNodes.program([]))
 })
 
 test("operators", () => {
-  const input: Token[] =[
+  const input =[
     Tokens.paren('('),
     Tokens.operator('+'),
     Tokens.number("1"),
     Tokens.number("1"),
     Tokens.paren(')'),
   ]
-  const output: ASTNode = {
-    type: PROGRAM,
-    body: [
-      {
-        type: CALL_EXPRESSION,
-        name: "+",
-        params: [
-          { type: NUMBER_LITERAL, value: "1" },
-          { type: NUMBER_LITERAL, value: "1" }
-        ]
-      }
-    ]
-  }
+  const output = ASTNodes.program([
+    ASTNodes.callExpression("+", [
+      ASTNodes.numberLiteral("1"),
+      ASTNodes.numberLiteral("1"),
+    ])
+  ])
   expect(parse(input)).toEqual(output)
 })
 
 test("identifiers", () => {
-  const input: Token[] = [
+  const input = [
     Tokens.paren('('),
     Tokens.identifier('add'),
     Tokens.number("1"),
     Tokens.number("1"),
     Tokens.paren(')'),
   ]
-  const output: ASTNode = {
-    type: PROGRAM,
-    body: [
-      {
-        type: CALL_EXPRESSION,
-        name: "add",
-        params: [
-          { type: NUMBER_LITERAL, value: "1" },
-          { type: NUMBER_LITERAL, value: "1" }
-        ]
-      }
-    ]
-  }
+  const output = ASTNodes.program([
+    ASTNodes.callExpression("add", [
+      ASTNodes.numberLiteral("1"),
+      ASTNodes.numberLiteral("1"),
+    ])
+  ])
   expect(parse(input)).toEqual(output)
 })
 
 test("string literals", () => {
-  const input: Token[] = [
+  const input = [
     Tokens.paren('('),
     Tokens.identifier('print'),
     Tokens.string('hello, world'),
     Tokens.paren(')'),
   ]
-  const output = {
-    type: PROGRAM,
-    body: [
-      {
-        type: CALL_EXPRESSION,
-        name: "print",
-        params: [{ type: STRING_LITERAL, value: "hello, world" }]
-      }
-    ]
-  }
+  const output = ASTNodes.program([
+    ASTNodes.callExpression("print", [
+      ASTNodes.stringLiteral("hello, world"),
+    ])
+  ])
   expect(parse(input)).toEqual(output)
 })
 
 test("variable assignment", () => {
-  const input: Token[] = [
+  const input = [
     Tokens.paren('('),
     Tokens.keyword('def'),
     Tokens.identifier('x'),
     Tokens.number('1'),
     Tokens.paren(')'),
   ]
-  const output = {
-    type: PROGRAM,
-    body: [
-      {
-        type: VARIABLE_ASSIGNMENT,
-        name: "x",
-        value: { type: NUMBER_LITERAL, value: "1" }
-      }
-    ]
-  }
+  const output = ASTNodes.program([
+      ASTNodes.variableAssignment('x', ASTNodes.numberLiteral('1'))
+    ])
   expect(parse(input)).toEqual(output)
 })
 
-test("function declaration with no arguments", () => {
-  const input: Token[] = [
+test("function declaration with one argument", () => {
+  const input = [
     Tokens.paren('('),
     Tokens.keyword('fn'),
     Tokens.identifier('foo'),
@@ -114,22 +77,18 @@ test("function declaration with no arguments", () => {
     Tokens.number('1'),
     Tokens.paren(')'),
   ]
-  const output: ASTNode = {
-    type: PROGRAM,
-    body: [
-      {
-        type: FUNCTION_DECLARATION,
-        name: "foo",
-        params: ["x"],
-        body: { type: NUMBER_LITERAL, value: "1" }
-      }
-    ]
-  }
+  const output = ASTNodes.program([
+    ASTNodes.functionDeclaration(
+      'foo',
+      ['x'],
+      ASTNodes.numberLiteral('1'),
+    ),
+  ])
   expect(parse(input)).toEqual(output)
 })
 
 test("function declaration with multiple arguments", () => {
-  let input: Token[] = [
+  const input = [
     Tokens.paren('('),
     Tokens.keyword('fn'),
     Tokens.identifier('foo'),
@@ -138,44 +97,18 @@ test("function declaration with multiple arguments", () => {
     Tokens.number('1'),
     Tokens.paren(')'),
   ]
-  let output: ASTNode = {
-    type: PROGRAM,
-    body: [
-      {
-        type: FUNCTION_DECLARATION,
-        name: "foo",
-        params: ["x", "y"],
-        body: { type: NUMBER_LITERAL, value: "1" }
-      }
-    ]
-  }
-  expect(parse(input)).toEqual(output)
-
-  input = [
-    Tokens.paren('('),
-    Tokens.keyword('fn'),
-    Tokens.identifier('foo'),
-    Tokens.parameter('x'),
-    Tokens.parameter('y'),
-    Tokens.number('1'),
-    Tokens.paren(')'),
-  ]
-  output = {
-    type: PROGRAM,
-    body: [
-      {
-        type: FUNCTION_DECLARATION,
-        name: "foo",
-        params: ["x", "y"],
-        body: { type: NUMBER_LITERAL, value: "1" }
-      }
-    ]
-  }
+  const output = ASTNodes.program([
+    ASTNodes.functionDeclaration(
+      'foo',
+      ['x', 'y'],
+      ASTNodes.numberLiteral('1'),
+    ),
+  ])
   expect(parse(input)).toEqual(output)
 })
 
 test("function declaration with complex body", () => {
-  const input: Token[] = [
+  const input = [
     Tokens.paren('('),
     Tokens.keyword('fn'),
     Tokens.identifier('foo'),
@@ -190,41 +123,23 @@ test("function declaration with complex body", () => {
     Tokens.paren(')'),
     Tokens.paren(')'),
   ]
-  const output: ASTNode = {
-    type: PROGRAM,
-    body: [
-      {
-        type: FUNCTION_DECLARATION,
-        name: "foo",
-        params: ["x"],
-        body: {
-          name: "print",
-          type: CALL_EXPRESSION,
-          params: [
-            {
-              name: "+",
-              type: CALL_EXPRESSION,
-              params: [
-                {
-                  value: "1",
-                  type: NUMBER_LITERAL
-                },
-                {
-                  value: "1",
-                  type: NUMBER_LITERAL
-                }
-              ]
-            }
-          ]
-        }
-      }
-    ]
-  }
+  const output = ASTNodes.program([
+    ASTNodes.functionDeclaration(
+      'foo',
+      ['x'],
+      ASTNodes.callExpression('print', [
+        ASTNodes.callExpression('+', [
+          ASTNodes.numberLiteral('1'),
+          ASTNodes.numberLiteral('1'),
+        ])
+      ])
+    )
+  ])
   expect(parse(input)).toEqual(output)
 })
 
 test("nested call expressions", () => {
-  const input: Token[] = [
+  const input = [
     Tokens.paren('('),
     Tokens.identifier('print'),
     Tokens.paren('('),
@@ -234,30 +149,13 @@ test("nested call expressions", () => {
     Tokens.paren(')'),
     Tokens.paren(')'),
   ]
-  const output: ASTNode = {
-    type: PROGRAM,
-    body: [
-      {
-        name: "print",
-        type: CALL_EXPRESSION,
-        params: [
-          {
-            name: "+",
-            type: CALL_EXPRESSION,
-            params: [
-              {
-                value: "1",
-                type: NUMBER_LITERAL
-              },
-              {
-                value: "1",
-                type: NUMBER_LITERAL
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  }
+  const output = ASTNodes.program([
+    ASTNodes.callExpression('print', [
+      ASTNodes.callExpression('+', [
+        ASTNodes.numberLiteral('1'),
+        ASTNodes.numberLiteral('1'),
+      ])
+    ])
+  ])
   expect(parse(input)).toEqual(output)
 })
