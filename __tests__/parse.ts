@@ -66,6 +66,20 @@ test("variable assignment", () => {
   expect(parse(input)).toEqual(output);
 });
 
+test("function declaration with no arguments", () => {
+  const input = [
+    Tokens.paren("("),
+    Tokens.keyword("fn"),
+    Tokens.identifier("foo"),
+    Tokens.number("1"),
+    Tokens.paren(")")
+  ];
+  const output = ASTNodes.program([
+    ASTNodes.functionDeclaration("foo", [], ASTNodes.numberLiteral("1"))
+  ]);
+  expect(parse(input)).toEqual(output);
+});
+
 test("function declaration with one argument", () => {
   const input = [
     Tokens.paren("("),

@@ -68,4 +68,14 @@ test("handles keywords", () => {
     Tokens.paren(")")
   ];
   expect(lexer(input)).toEqual(output);
+
+  input = `(fn foo [] 1)`;
+  output = [
+    Tokens.paren("("),
+    Tokens.keyword("fn"),
+    Tokens.identifier("foo"),
+    Tokens.number("1"),
+    Tokens.paren(")")
+  ];
+  expect(lexer(input)).toEqual(output);
 });
