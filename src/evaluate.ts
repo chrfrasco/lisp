@@ -1,16 +1,22 @@
 import lexer from "./lexer";
 import parser from "./parse";
 import run from "./run";
-import { Scope, RuntimeValue } from "./scope";
+import { Scope, RuntimeValue, RuntimeValueBuilders } from "./scope";
+import { ErrorAtLocation } from "./error_at_location";
 
 export function evaluate(
-  input: string,
+  source: string,
   globals = Scope.prelude()
 ): RuntimeValue {
-  return pipe(lexer, parser, ast => run(ast, globals))(input);
-}
+  try {
+    const tokens = lexer(source);
+    const ast = parser(tokens);
+    return run(ast, globals);
+  } catch (error) {
+    if (error instanceof ErrorAtLocation) {
+      console.error(error.printWithSource(source));
+    }
+  }
 
-function pipe(...functions: ((...args: any[]) => any)[]) {
-  return (initial: any) =>
-    functions.reduce((value, nextFn) => nextFn(value), initial);
+  return RuntimeValueBuilders.nil();
 }

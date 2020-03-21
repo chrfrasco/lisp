@@ -1,6 +1,7 @@
 import { isKeyword } from "./keywords";
-import { Location, Reader } from "./reader";
+import { Reader, Location } from "./reader";
 import { Token, Tokens, OperatorChar } from "./tokens";
+import { ErrorAtLocation } from "./error_at_location";
 
 export default function lexer(source: string): Token[] {
   const tokens: Token[] = [];
@@ -81,9 +82,9 @@ export default function lexer(source: string): Token[] {
   return tokens;
 }
 
-export class LexError extends Error {
-  constructor(char: string, private readonly location: Location) {
-    super(`unexpected characted ${char}`);
+class LexError extends ErrorAtLocation {
+  constructor(char: string, location: Location) {
+    super(`unexpected char ${char}`, location);
   }
 }
 

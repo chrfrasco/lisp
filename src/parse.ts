@@ -1,5 +1,6 @@
 import { Token, TokenKind, KeywordToken, IdentifierToken, OperatorChar, OperatorToken } from "./tokens";
 import { UnreachableError, Preconditions } from "./preconditions";
+import { ErrorAtLocation } from "./error_at_location";
 
 export enum ASTNodeKind {
   PROGRAM = "PROGRAM",
@@ -62,6 +63,12 @@ export const ASTNodes = {
     return { type: ASTNodeKind.FUNCTION_DECLARATION, name, params, body };
   }
 };
+
+class ParseError extends ErrorAtLocation {
+  constructor(token: Token) {
+    super(`unexpected token of type ${token.type}`, token.location);
+  }
+}
 
 export default function parse(tokens: readonly Token[]) {
   let current = 0;
@@ -174,10 +181,4 @@ export default function parse(tokens: readonly Token[]) {
   }
 
   return ASTNodes.program(body);
-}
-
-export class ParseError extends Error {
-  constructor(private readonly token: Token) {
-    super(`unexpected token of type ${token.type}`);
-  }
 }
