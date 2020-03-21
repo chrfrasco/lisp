@@ -24,3 +24,17 @@ test("variable assignment", () => {
   lisp(`(def x 1)\n(print x)`, scope);
   expect(print).toHaveBeenCalledWith(1);
 });
+
+test("function calls with no arguments", () => {
+  const print = jest.fn();
+  const scope = Scope.forTesting(print);
+  lisp(`(fn x [] 1)\n(print (x))`, scope);
+  expect(print).toHaveBeenCalledWith(1);
+});
+
+test("function calls with arguments", () => {
+  const print = jest.fn();
+  const scope = Scope.forTesting(print);
+  lisp(`(fn greet [name] (concat "hello " name))\n(print (greet "christian"))`, scope);
+  expect(print).toHaveBeenCalledWith("hello christian");
+});
