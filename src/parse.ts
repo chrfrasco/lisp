@@ -5,7 +5,7 @@ import {
   IdentifierToken,
   OperatorToken
 } from "./tokens";
-import { UnreachableError, Preconditions } from "./preconditions";
+import { UnreachableError } from "./preconditions";
 import { ErrorAtLocation } from "./error_at_location";
 import { Location, ImmutableLocation } from "./reader";
 
@@ -163,10 +163,9 @@ export default function parse(tokens: readonly Token[]) {
 
   function handleVariableAssignment(): ASTNode {
     let token = tokens[++current];
-    Preconditions.checkState(
-      token.type === TokenKind.IDENTIFIER,
-      `expected IDENTIFIER, got ${token.type}: ${token}`
-    );
+    if (token.type !== TokenKind.IDENTIFIER) {
+      throw new ParseError(token);
+    }
     const name = token.value;
     current++;
     const node = ASTNodes.variableAssignment(name, walk(), token.location);
@@ -176,10 +175,9 @@ export default function parse(tokens: readonly Token[]) {
 
   function handleFunctionDeclaration(): ASTNode {
     let token = tokens[++current];
-    Preconditions.checkState(
-      token.type === TokenKind.IDENTIFIER,
-      `expected IDENTIFIER, got ${token.type}: ${token}`
-    );
+    if (token.type !== TokenKind.IDENTIFIER) {
+      throw new ParseError(token);
+    }
     const name = token.value;
 
     let params = [];
