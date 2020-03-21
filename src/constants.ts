@@ -1,13 +1,4 @@
-import { TokenKind } from "./lexer";
 import { ASTNodeKind } from "./parse";
-
-export const NUMBER = TokenKind.NUMBER;
-export const STRING = TokenKind.STRING;
-export const PAREN = TokenKind.PAREN;
-export const OPERATOR = TokenKind.OPERATOR;
-export const IDENTIFIER = TokenKind.IDENTIFIER;
-export const KEYWORD = TokenKind.KEYWORD;
-export const PARAMETER = TokenKind.PARAMETER;
 
 export const PROGRAM = ASTNodeKind.PROGRAM;
 export const NUMBER_LITERAL = ASTNodeKind.NUMBER_LITERAL;

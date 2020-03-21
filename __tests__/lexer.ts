@@ -1,22 +1,13 @@
-import lexer from '../src/lexer';
-import {
-  NUMBER,
-  STRING,
-  PAREN,
-  OPERATOR,
-  IDENTIFIER,
-  KEYWORD,
-  PARAMETER
-} from '../src/constants';
+import lexer, { Tokens } from '../src/lexer';
 
 test("transforms string into an array of tokens", () => {
   const input = `(+ 1 10)`
   const output = [
-    { value: "(", type: PAREN },
-    { value: "+", type: OPERATOR },
-    { value: "1", type: NUMBER },
-    { value: "10", type: NUMBER },
-    { value: ")", type: PAREN }
+    Tokens.paren('('),
+    Tokens.operator('+'),
+    Tokens.number("1"),
+    Tokens.number("10"),
+    Tokens.paren(')'),
   ]
   expect(lexer(input)).toEqual(output)
 })
@@ -24,11 +15,11 @@ test("transforms string into an array of tokens", () => {
 test("handles alphanumeric values", () => {
   const input = `(div 10 5)`
   const output = [
-    { value: "(", type: PAREN },
-    { value: "div", type: IDENTIFIER },
-    { value: "10", type: NUMBER },
-    { value: "5", type: NUMBER },
-    { value: ")", type: PAREN }
+    Tokens.paren('('),
+    Tokens.identifier('div'),
+    Tokens.number("10"),
+    Tokens.number("5"),
+    Tokens.paren(')'),
   ]
   expect(lexer(input)).toEqual(output)
 })
@@ -36,10 +27,10 @@ test("handles alphanumeric values", () => {
 test("handles strings", () => {
   const input = `(print "hello, world")`
   const output = [
-    { value: "(", type: PAREN },
-    { value: "print", type: IDENTIFIER },
-    { value: "hello, world", type: STRING },
-    { value: ")", type: PAREN }
+    Tokens.paren('('),
+    Tokens.identifier('print'),
+    Tokens.string('hello, world'),
+    Tokens.paren(')'),
   ]
   expect(lexer(input)).toEqual(output)
 })
@@ -47,23 +38,23 @@ test("handles strings", () => {
 test("handles keywords", () => {
   let input = `(def x 1)`
   let output = [
-    { value: "(", type: PAREN },
-    { value: "def", type: KEYWORD },
-    { value: "x", type: IDENTIFIER },
-    { value: "1", type: NUMBER },
-    { value: ")", type: PAREN }
+    Tokens.paren('('),
+    Tokens.keyword('def'),
+    Tokens.identifier('x'),
+    Tokens.number('1'),
+    Tokens.paren(')'),
   ]
   expect(lexer(input)).toEqual(output)
 
   input = `(fn foo [x y] 1)`
   output = [
-    { value: "(", type: PAREN },
-    { value: "fn", type: KEYWORD },
-    { value: "foo", type: IDENTIFIER },
-    { value: "x", type: PARAMETER },
-    { value: "y", type: PARAMETER },
-    { value: "1", type: NUMBER },
-    { value: ")", type: PAREN }
+    Tokens.paren('('),
+    Tokens.keyword('fn'),
+    Tokens.identifier('foo'),
+    Tokens.parameter('x'),
+    Tokens.parameter('y'),
+    Tokens.number('1'),
+    Tokens.paren(')'),
   ]
   expect(lexer(input)).toEqual(output)
 })

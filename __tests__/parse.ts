@@ -6,15 +6,8 @@ import {
   STRING_LITERAL,
   VARIABLE_ASSIGNMENT,
   FUNCTION_DECLARATION,
-  PAREN,
-  OPERATOR,
-  NUMBER,
-  IDENTIFIER,
-  STRING,
-  PARAMETER,
-  KEYWORD,
 } from '../src/constants';
-import { Token } from '../src/lexer';
+import { Token, Tokens } from '../src/lexer';
 
 test("handles empty list", () => {
   expect(parse([])).toEqual({
@@ -24,12 +17,12 @@ test("handles empty list", () => {
 })
 
 test("operators", () => {
-  const input: Token[] = [
-    { type: PAREN, value: "(" },
-    { type: OPERATOR, value: "+" },
-    { type: NUMBER, value: "1" },
-    { type: NUMBER, value: "1" },
-    { type: PAREN, value: ")" }
+  const input: Token[] =[
+    Tokens.paren('('),
+    Tokens.operator('+'),
+    Tokens.number("1"),
+    Tokens.number("1"),
+    Tokens.paren(')'),
   ]
   const output: ASTNode = {
     type: PROGRAM,
@@ -49,11 +42,11 @@ test("operators", () => {
 
 test("identifiers", () => {
   const input: Token[] = [
-    { type: PAREN, value: "(" },
-    { type: IDENTIFIER, value: "add" },
-    { type: NUMBER, value: "1" },
-    { type: NUMBER, value: "1" },
-    { type: PAREN, value: ")" }
+    Tokens.paren('('),
+    Tokens.identifier('add'),
+    Tokens.number("1"),
+    Tokens.number("1"),
+    Tokens.paren(')'),
   ]
   const output: ASTNode = {
     type: PROGRAM,
@@ -73,10 +66,10 @@ test("identifiers", () => {
 
 test("string literals", () => {
   const input: Token[] = [
-    { type: PAREN, value: "(" },
-    { type: IDENTIFIER, value: "print" },
-    { type: STRING, value: "hello, world" },
-    { type: PAREN, value: ")" }
+    Tokens.paren('('),
+    Tokens.identifier('print'),
+    Tokens.string('hello, world'),
+    Tokens.paren(')'),
   ]
   const output = {
     type: PROGRAM,
@@ -93,11 +86,11 @@ test("string literals", () => {
 
 test("variable assignment", () => {
   const input: Token[] = [
-    { value: "(", type: PAREN },
-    { value: "def", type: KEYWORD },
-    { value: "x", type: IDENTIFIER },
-    { value: "1", type: NUMBER },
-    { value: ")", type: PAREN }
+    Tokens.paren('('),
+    Tokens.keyword('def'),
+    Tokens.identifier('x'),
+    Tokens.number('1'),
+    Tokens.paren(')'),
   ]
   const output = {
     type: PROGRAM,
@@ -114,12 +107,12 @@ test("variable assignment", () => {
 
 test("function declaration with no arguments", () => {
   const input: Token[] = [
-    { value: "(", type: PAREN },
-    { value: "fn", type: KEYWORD },
-    { value: "foo", type: IDENTIFIER },
-    { value: "x", type: PARAMETER },
-    { value: "1", type: NUMBER },
-    { value: ")", type: PAREN }
+    Tokens.paren('('),
+    Tokens.keyword('fn'),
+    Tokens.identifier('foo'),
+    Tokens.parameter('x'),
+    Tokens.number('1'),
+    Tokens.paren(')'),
   ]
   const output: ASTNode = {
     type: PROGRAM,
@@ -137,12 +130,13 @@ test("function declaration with no arguments", () => {
 
 test("function declaration with multiple arguments", () => {
   let input: Token[] = [
-    { value: "(", type: PAREN },
-    { value: "fn", type: KEYWORD },
-    { value: "foo", type: IDENTIFIER },
-    { value: "x", type: PARAMETER },
-    { value: "1", type: NUMBER },
-    { value: ")", type: PAREN }
+    Tokens.paren('('),
+    Tokens.keyword('fn'),
+    Tokens.identifier('foo'),
+    Tokens.parameter('x'),
+    Tokens.parameter('y'),
+    Tokens.number('1'),
+    Tokens.paren(')'),
   ]
   let output: ASTNode = {
     type: PROGRAM,
@@ -150,7 +144,7 @@ test("function declaration with multiple arguments", () => {
       {
         type: FUNCTION_DECLARATION,
         name: "foo",
-        params: ["x"],
+        params: ["x", "y"],
         body: { type: NUMBER_LITERAL, value: "1" }
       }
     ]
@@ -158,13 +152,13 @@ test("function declaration with multiple arguments", () => {
   expect(parse(input)).toEqual(output)
 
   input = [
-    { value: "(", type: PAREN },
-    { value: "fn", type: KEYWORD },
-    { value: "foo", type: IDENTIFIER },
-    { value: "x", type: PARAMETER },
-    { value: "y", type: PARAMETER },
-    { value: "1", type: NUMBER },
-    { value: ")", type: PAREN }
+    Tokens.paren('('),
+    Tokens.keyword('fn'),
+    Tokens.identifier('foo'),
+    Tokens.parameter('x'),
+    Tokens.parameter('y'),
+    Tokens.number('1'),
+    Tokens.paren(')'),
   ]
   output = {
     type: PROGRAM,
@@ -182,19 +176,19 @@ test("function declaration with multiple arguments", () => {
 
 test("function declaration with complex body", () => {
   const input: Token[] = [
-    { value: "(", type: PAREN },
-    { value: "fn", type: KEYWORD },
-    { value: "foo", type: IDENTIFIER },
-    { value: "x", type: PARAMETER },
-    { type: PAREN, value: "(" },
-    { type: IDENTIFIER, value: "print" },
-    { type: PAREN, value: "(" },
-    { type: OPERATOR, value: "+" },
-    { type: NUMBER, value: "1" },
-    { type: NUMBER, value: "1" },
-    { type: PAREN, value: ")" },
-    { type: PAREN, value: ")" },
-    { value: ")", type: PAREN }
+    Tokens.paren('('),
+    Tokens.keyword('fn'),
+    Tokens.identifier('foo'),
+    Tokens.parameter('x'),
+    Tokens.paren('('),
+    Tokens.identifier('print'),
+    Tokens.paren('('),
+    Tokens.operator('+'),
+    Tokens.number('1'),
+    Tokens.number('1'),
+    Tokens.paren(')'),
+    Tokens.paren(')'),
+    Tokens.paren(')'),
   ]
   const output: ASTNode = {
     type: PROGRAM,
@@ -231,14 +225,14 @@ test("function declaration with complex body", () => {
 
 test("nested call expressions", () => {
   const input: Token[] = [
-    { type: PAREN, value: "(" },
-    { type: IDENTIFIER, value: "print" },
-    { type: PAREN, value: "(" },
-    { type: OPERATOR, value: "+" },
-    { type: NUMBER, value: "1" },
-    { type: NUMBER, value: "1" },
-    { type: PAREN, value: ")" },
-    { type: PAREN, value: ")" }
+    Tokens.paren('('),
+    Tokens.identifier('print'),
+    Tokens.paren('('),
+    Tokens.operator('+'),
+    Tokens.number('1'),
+    Tokens.number('1'),
+    Tokens.paren(')'),
+    Tokens.paren(')'),
   ]
   const output: ASTNode = {
     type: PROGRAM,

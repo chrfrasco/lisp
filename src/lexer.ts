@@ -14,6 +14,30 @@ export type Token =
   | { type: Exclude<TokenKind, TokenKind.KEYWORD>; value: string }
   | { type: TokenKind.KEYWORD; value: Keyword };
 
+export const Tokens = {
+  paren(value: string): Token {
+    return { type: TokenKind.PAREN, value };
+  },
+  number(value: string): Token {
+    return { type: TokenKind.NUMBER, value };
+  },
+  operator(value: string): Token {
+    return { type: TokenKind.OPERATOR, value };
+  },
+  identifier(value: string): Token {
+    return { type: TokenKind.IDENTIFIER, value };
+  },
+  string(value: string): Token {
+    return { type: TokenKind.STRING, value };
+  },
+  keyword(value: Keyword): Token {
+    return { type: TokenKind.KEYWORD, value };
+  },
+  parameter(value: string): Token {
+    return { type: TokenKind.PARAMETER, value };
+  }
+}
+
 export default function lexer(input: string): Token[] {
   const tokens: Token[] = [];
   let current = 0;
