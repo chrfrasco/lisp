@@ -18,9 +18,9 @@ export const FUNCTION_DECLARATION = ASTNodeKind.FUNCTION_DECLARATION;
 
 export const DEFAULT_GLOBALS: { [key: string]: any } = {
   print: console.log.bind(console),
-  "+": (a, b) => a + b,
-  "*": (a, b) => a * b,
-  "-": (a, b) => a - b,
-  "/": (a, b) => a / b,
-  pow: (a, b) => a ** b
+  "+": (a: number, b: number) => a + b,
+  "*": (a: number, b: number) => a * b,
+  "-": (a: number, b: number) => a - b,
+  "/": (a: number, b: number) => a / b,
+  pow: (a: number, b: number) => a ** b
 };
