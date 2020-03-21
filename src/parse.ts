@@ -37,7 +37,7 @@ export type ASTNode =
 
 export const ASTNodes = {
   program(body: readonly ASTNode[]): ASTNode {
-    return { type: ASTNodeKind.PROGRAM, body }
+    return { type: ASTNodeKind.PROGRAM, body };
   },
   variableAssignment(name: string, value: ASTNode): ASTNode {
     return { type: ASTNodeKind.VARIABLE_ASSIGNMENT, name, value };
@@ -46,18 +46,22 @@ export const ASTNodes = {
     return { type: ASTNodeKind.CALL_EXPRESSION, name, params };
   },
   stringLiteral(value: string): ASTNode {
-    return { type: ASTNodeKind.STRING_LITERAL, value }
+    return { type: ASTNodeKind.STRING_LITERAL, value };
   },
   numberLiteral(value: string): ASTNode {
-    return { type: ASTNodeKind.NUMBER_LITERAL, value }
+    return { type: ASTNodeKind.NUMBER_LITERAL, value };
   },
   identifier(value: string): ASTNode {
-    return { type: ASTNodeKind.IDENTIFIER, value }
+    return { type: ASTNodeKind.IDENTIFIER, value };
   },
-  functionDeclaration(name: string, params: readonly string[], body: ASTNode): FunctionNode {
-    return { type: ASTNodeKind.FUNCTION_DECLARATION, name, params, body }
+  functionDeclaration(
+    name: string,
+    params: readonly string[],
+    body: ASTNode
+  ): FunctionNode {
+    return { type: ASTNodeKind.FUNCTION_DECLARATION, name, params, body };
   }
-}
+};
 
 export default function parse(tokens: readonly Token[]) {
   let current = 0;

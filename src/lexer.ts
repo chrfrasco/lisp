@@ -11,8 +11,12 @@ export enum TokenKind {
 }
 
 export type Token =
-  | { type: Exclude<TokenKind, TokenKind.KEYWORD>; value: string }
-  | { type: TokenKind.KEYWORD; value: Keyword };
+  | {
+      type: Exclude<TokenKind, TokenKind.KEYWORD | TokenKind.OPERATOR>;
+      value: string;
+    }
+  | { type: TokenKind.KEYWORD; value: Keyword }
+  | { type: TokenKind.OPERATOR; value: OperatorChar };
 
 export const Tokens = {
   paren(value: string): Token {
@@ -21,7 +25,7 @@ export const Tokens = {
   number(value: string): Token {
     return { type: TokenKind.NUMBER, value };
   },
-  operator(value: string): Token {
+  operator(value: OperatorChar): Token {
     return { type: TokenKind.OPERATOR, value };
   },
   identifier(value: string): Token {
@@ -36,7 +40,7 @@ export const Tokens = {
   parameter(value: string): Token {
     return { type: TokenKind.PARAMETER, value };
   }
-}
+};
 
 export default function lexer(input: string): Token[] {
   const tokens: Token[] = [];
