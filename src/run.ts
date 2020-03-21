@@ -1,5 +1,5 @@
 import { DEFAULT_GLOBALS } from "./constants";
-import { ASTNode, ASTNodeKind, FunctionNode } from "./parse";
+import { ASTNode, ASTNodeKind, FunctionNode as FunctionDeclarationNode } from "./parse";
 import { UnreachableError } from "./preconditions";
 
 export default function run(node: ASTNode, globals = DEFAULT_GLOBALS): any {
@@ -36,7 +36,7 @@ export default function run(node: ASTNode, globals = DEFAULT_GLOBALS): any {
   }
 }
 
-function makeFunction({ params, body }: FunctionNode, globals: any) {
+function makeFunction({ params, body }: FunctionDeclarationNode, globals: any) {
   return (...args: any[]) => {
     const scope: { [key: string]: any } = {};
     for (let i = 0; i < params.length; i++) {
