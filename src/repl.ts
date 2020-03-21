@@ -1,6 +1,7 @@
 import * as readline from "readline";
 import { evaluate } from "./evaluate";
 import { RuntimeValues } from "./scope";
+import { ErrorAtLocation } from "./error_at_location";
 
 const lineReader = readline.createInterface({
   input: process.stdin,
@@ -16,8 +17,16 @@ function ask() {
     }
 
     if (answer !== "") {
-      const result = evaluate(answer);
-      console.log(RuntimeValues.repr(result));
+      try {
+        const result = evaluate(answer);
+        console.log(RuntimeValues.repr(result));
+      } catch (error) {
+        if (error instanceof ErrorAtLocation) {
+          console.error(error.printWithSource(answer));
+        } else {
+          throw error;
+        }
+      }
     }
 
     ask();

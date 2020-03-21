@@ -1,7 +1,8 @@
-import lex from "../src/lex";
+import lex, { LexError } from "../src/lex";
 import { Tokens } from "../src/tokens";
 import { ImmutableLocation } from "../src/reader";
 
+// DUPLICATE(#1)
 const TokWithLoc = new Proxy(
   {},
   {
@@ -14,6 +15,10 @@ const TokWithLoc = new Proxy(
     }
   }
 );
+
+test("empty input", () => {
+  expect(lex("")).toEqual([]);
+});
 
 test("transforms string into an array of tokens", () => {
   const input = `(+ 1 10)`;
@@ -94,6 +99,23 @@ test("handles keywords", () => {
   ];
   expect(lex(input)).toEqual(output);
 });
+
+test.each(["((", "))"])("can lex input that cannot be parsed (%s)", input => {
+  expect(lex(input)).toBeDefined();
+});
+
+test.each([
+  ["$", "$", [0, 0, 0]],
+  ["^", "^", [0, 0, 0]],
+  ["(def thing $)", "$", [11, 11, 0]]
+] as [string, string, [number, number, number]][])(
+  "should reject invalid char %s at location (%d, %d, %d)",
+  (input, char, location) => {
+    expect(() => lex(input)).toThrowError(
+      new LexError(char, new ImmutableLocation(...location))
+    );
+  }
+);
 
 describe("Token.location", () => {
   const loc = (offset: number, charInLine: number, line: number) =>

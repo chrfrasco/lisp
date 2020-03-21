@@ -2,6 +2,7 @@ import parse, { ASTNodes } from "../src/parse";
 import { Tokens } from "../src/tokens";
 import { ImmutableLocation } from "../src/reader";
 
+// DUPLICATE(#1)
 const TokWithLoc = new Proxy(
   {},
   {

@@ -82,7 +82,7 @@ export default function lex(source: string): Token[] {
   return tokens;
 }
 
-class LexError extends ErrorAtLocation {
+export class LexError extends ErrorAtLocation {
   constructor(char: string, location: Location) {
     super(`unexpected char ${char}`, location);
   }
