@@ -71,18 +71,12 @@ export default function parse(tokens: readonly Token[]) {
 
     if (token.type === TokenKind.NUMBER) {
       current++;
-      return {
-        type: ASTNodeKind.NUMBER_LITERAL,
-        value: token.value
-      };
+      return ASTNodes.numberLiteral(token.value);
     }
 
     if (token.type === TokenKind.STRING) {
       current++;
-      return {
-        type: ASTNodeKind.STRING_LITERAL,
-        value: token.value
-      };
+      return ASTNodes.stringLiteral(token.value);
     }
 
     if (token.type === TokenKind.PAREN && token.value === "(") {
@@ -111,10 +105,7 @@ export default function parse(tokens: readonly Token[]) {
 
     if (token.type === TokenKind.IDENTIFIER) {
       current++;
-      return {
-        type: ASTNodeKind.IDENTIFIER,
-        value: token.value
-      };
+      return ASTNodes.identifier(token.value);
     }
 
     throw new TypeError(
@@ -130,11 +121,7 @@ export default function parse(tokens: readonly Token[]) {
     );
     const name = token.value;
     current++;
-    const node: ASTNode = {
-      name,
-      type: ASTNodeKind.VARIABLE_ASSIGNMENT,
-      value: walk()
-    };
+    const node = ASTNodes.variableAssignment(name, walk());
     current++;
     return node;
   }
@@ -155,12 +142,7 @@ export default function parse(tokens: readonly Token[]) {
       token = tokens[++current];
     }
 
-    const node: ASTNode = {
-      type: ASTNodeKind.FUNCTION_DECLARATION,
-      name,
-      params,
-      body: walk()
-    };
+    const node = ASTNodes.functionDeclaration(name, params, walk());
 
     current++;
     return node;
@@ -181,11 +163,7 @@ export default function parse(tokens: readonly Token[]) {
     }
 
     current++;
-    return {
-      type: ASTNodeKind.CALL_EXPRESSION,
-      name,
-      params
-    };
+    return ASTNodes.callExpression(name, params);
   }
 
   const body: ASTNode[] = [];
@@ -193,5 +171,5 @@ export default function parse(tokens: readonly Token[]) {
     body.push(walk());
   }
 
-  return { type: ASTNodeKind.PROGRAM, body };
+  return ASTNodes.program(body);
 }
