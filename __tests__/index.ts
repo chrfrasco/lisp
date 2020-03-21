@@ -1,22 +1,18 @@
 import lisp from "../src";
-import * as constants from "../src/constants";
+import { Scope } from "../src/scope";
 
 test("runs correctly", () => {
   const print = jest.fn();
-  const mockedGlobals = Object.assign({}, constants.DEFAULT_GLOBALS, {
-    print
-  });
-  lisp(`(print (+ 1 1))`, mockedGlobals);
+  const scope = Scope.prelude().with([["print", print]]);
+  lisp(`(print (+ 1 1))`, scope);
   expect(print.mock.calls.length).toEqual(1);
   expect(print.mock.calls[0][0]).toEqual(2);
 });
 
 test("multi-statement programs", () => {
   const print = jest.fn();
-  const mockedGlobals = Object.assign({}, constants.DEFAULT_GLOBALS, {
-    print
-  });
-  lisp(`(print "hello, ")\n(print "world")`, mockedGlobals);
+  const scope = new Scope([["print", print]]);
+  lisp(`(print "hello, ")\n(print "world")`, scope);
   expect(print.mock.calls.length).toBe(2);
   expect(print.mock.calls[0][0]).toEqual("hello, ");
   expect(print.mock.calls[1][0]).toEqual("world");
@@ -24,10 +20,8 @@ test("multi-statement programs", () => {
 
 test("variable assignment", () => {
   const print = jest.fn();
-  const mockedGlobals = Object.assign({}, constants.DEFAULT_GLOBALS, {
-    print
-  });
-  lisp(`(def x 1)\n(print x)`, mockedGlobals);
+  const scope = new Scope([["print", print]]);
+  lisp(`(def x 1)\n(print x)`, scope);
   expect(print.mock.calls.length).toBe(1);
   expect(print.mock.calls[0][0]).toEqual(1);
 });

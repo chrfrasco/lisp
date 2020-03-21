@@ -1,33 +1,33 @@
-import { DEFAULT_GLOBALS } from "./constants";
 import {
   ASTNode,
   ASTNodeKind,
   FunctionNode as FunctionDeclarationNode
 } from "./parse";
 import { UnreachableError } from "./preconditions";
+import { Scope } from "./scope";
 
-export default function run(node: ASTNode, globals = DEFAULT_GLOBALS): any {
+export default function run(node: ASTNode, scope = Scope.prelude()): any {
   switch (node.type) {
     case ASTNodeKind.PROGRAM:
-      const result = node.body.map(childNode => run(childNode, globals));
+      const result = node.body.map(childNode => run(childNode, scope));
       if (result.length === 1) {
         return result[0];
       } else {
         return result;
       }
     case ASTNodeKind.FUNCTION_DECLARATION:
-      const fn = makeFunction(node, globals);
-      globals[node.name] = fn;
+      const fn = makeFunction(node, scope);
+      scope.assign(node.name, fn);
       return fn;
     case ASTNodeKind.VARIABLE_ASSIGNMENT:
-      globals[node.name] = run(node.value, globals);
+      scope.assign(node.name, run(node.value, scope));
       break;
     case ASTNodeKind.CALL_EXPRESSION:
-      const params = node.params.map(param => run(param, globals));
-      return globals[node.name].apply(null, params);
+      const params = node.params.map(param => run(param, scope));
+      return scope.get(node.name).apply(null, params);
     case ASTNodeKind.IDENTIFIER:
-      if (globals[node.value]) {
-        return globals[node.value];
+      if (scope.includes(node.value)) {
+        return scope.get(node.value);
       } else {
         throw new TypeError(`${node.value} is not defined`);
       }
@@ -40,12 +40,20 @@ export default function run(node: ASTNode, globals = DEFAULT_GLOBALS): any {
   }
 }
 
-function makeFunction({ params, body }: FunctionDeclarationNode, globals: any) {
+function makeFunction(
+  { params, body }: FunctionDeclarationNode,
+  parentScope: Scope
+) {
   return (...args: any[]) => {
-    const scope: { [key: string]: any } = {};
-    for (let i = 0; i < params.length; i++) {
-      scope[params[i]] = args[i];
-    }
-    return run(body, Object.assign({}, globals, scope));
+    const scope = parentScope.with(zip(params, args));
+    return run(body, scope);
   };
+}
+
+function zip<X, Y>(xs: readonly X[], ys: readonly Y[]): [X, Y][] {
+  const zipped: [X, Y][] = [];
+  for (let i = 0; i < Math.min(xs.length, ys.length); i++) {
+    zipped.push([xs[i], ys[i]]);
+  }
+  return zipped;
 }
