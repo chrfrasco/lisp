@@ -1,5 +1,9 @@
 import { DEFAULT_GLOBALS } from "./constants";
-import { ASTNode, ASTNodeKind, FunctionNode as FunctionDeclarationNode } from "./parse";
+import {
+  ASTNode,
+  ASTNodeKind,
+  FunctionNode as FunctionDeclarationNode
+} from "./parse";
 import { UnreachableError } from "./preconditions";
 
 export default function run(node: ASTNode, globals = DEFAULT_GLOBALS): any {

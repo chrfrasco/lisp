@@ -1,27 +1,11 @@
 import run from "../src/run";
-import { ASTNode, ASTNodeKind } from "../src/parse";
+import { ASTNode, ASTNodes } from "../src/parse";
 import { DEFAULT_GLOBALS } from "../src/constants";
 
 test("runs a full program", () => {
-  const program: ASTNode = {
-    type: ASTNodeKind.PROGRAM,
-    body: [
-      {
-        type: ASTNodeKind.CALL_EXPRESSION,
-        name: "print",
-        params: [{ type: ASTNodeKind.STRING_LITERAL, value: "hello, world" }]
-      }
-    ]
-  };
-  expect(run(program));
-});
-
-test("globals can be mocked", () => {
-  const program: ASTNode = {
-    type: ASTNodeKind.CALL_EXPRESSION,
-    name: "print",
-    params: [{ type: ASTNodeKind.STRING_LITERAL, value: "hello, world" }]
-  };
+  const program = ASTNodes.program([
+    ASTNodes.callExpression("print", [ASTNodes.stringLiteral("hello, world")])
+  ]);
   const print = jest.fn();
   const mockedGlobals = Object.assign({}, DEFAULT_GLOBALS, {
     print
@@ -32,28 +16,17 @@ test("globals can be mocked", () => {
 });
 
 test("adds two numbers", () => {
-  const program: ASTNode = {
-    type: ASTNodeKind.CALL_EXPRESSION,
-    name: "+",
-    params: [
-      { type: ASTNodeKind.NUMBER_LITERAL, value: "1" },
-      { type: ASTNodeKind.NUMBER_LITERAL, value: "1" }
-    ]
-  };
+  const program = ASTNodes.callExpression("+", [
+    ASTNodes.numberLiteral("1"),
+    ASTNodes.numberLiteral("1")
+  ]);
   expect(run(program)).toEqual(2);
 });
 
 test("can assign variables", () => {
-  const program: ASTNode = {
-    type: ASTNodeKind.PROGRAM,
-    body: [
-      {
-        type: ASTNodeKind.VARIABLE_ASSIGNMENT,
-        name: "x",
-        value: { type: ASTNodeKind.NUMBER_LITERAL, value: "1" }
-      }
-    ]
-  };
+  const program = ASTNodes.program([
+    ASTNodes.variableAssignment("x", ASTNodes.numberLiteral("1"))
+  ]);
   const globals = Object.assign({}, DEFAULT_GLOBALS);
   run(program, globals);
   // TODO(christianscott): remove any cast
@@ -61,50 +34,22 @@ test("can assign variables", () => {
 });
 
 test("function declaration", () => {
-  const program: ASTNode = {
-    type: ASTNodeKind.PROGRAM,
-    body: [
-      {
-        type: ASTNodeKind.FUNCTION_DECLARATION,
-        name: "add",
-        params: ["x", "y"],
-        body: {
-          name: "+",
-          type: ASTNodeKind.CALL_EXPRESSION,
-          params: [
-            {
-              value: "x",
-              type: ASTNodeKind.IDENTIFIER
-            },
-            {
-              value: "y",
-              type: ASTNodeKind.IDENTIFIER
-            }
-          ]
-        }
-      },
-      {
-        type: ASTNodeKind.CALL_EXPRESSION,
-        name: "print",
-        params: [
-          {
-            name: "add",
-            type: ASTNodeKind.CALL_EXPRESSION,
-            params: [
-              {
-                value: "1",
-                type: ASTNodeKind.NUMBER_LITERAL
-              },
-              {
-                value: "1",
-                type: ASTNodeKind.NUMBER_LITERAL
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  };
+  const program: ASTNode = ASTNodes.program([
+    ASTNodes.functionDeclaration(
+      "add",
+      ["x", "y"],
+      ASTNodes.callExpression("+", [
+        ASTNodes.identifier("x"),
+        ASTNodes.identifier("y")
+      ])
+    ),
+    ASTNodes.callExpression("print", [
+      ASTNodes.callExpression("add", [
+        ASTNodes.numberLiteral("1"),
+        ASTNodes.numberLiteral("1")
+      ])
+    ])
+  ]);
   const print = jest.fn();
   const mockedGlobals = Object.assign({}, DEFAULT_GLOBALS, {
     print
