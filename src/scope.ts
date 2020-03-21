@@ -70,6 +70,7 @@ export class Scope {
   static prelude(): Scope {
     // prettier-ignore
     return new Scope([
+      ['nil', RuntimeValueBuilders.nil()],
       ["print", RuntimeValueBuilders.function('print', (...args) => {
         console.log(...(args.map(RuntimeValues.jsPrimitiveFor)));
         return RuntimeValueBuilders.nil();
