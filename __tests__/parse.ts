@@ -1,4 +1,4 @@
-import parse, { ASTNodes, ASTNode } from "../src/parse";
+import parse, { ASTNodes, ASTNode, ParseError } from "../src/parse";
 import { Tokens } from "../src/tokens";
 import { ImmutableLocation } from "../src/reader";
 
@@ -206,3 +206,43 @@ test("nested call expressions", () => {
   ]);
   expect(parse(input)).toEqual(output);
 });
+
+test('rejects keywords being used as identifiers', () => {
+  let input = [
+    TokWithLoc.paren("("),
+    TokWithLoc.identifier("def"),
+    TokWithLoc.keyword("def"),
+    TokWithLoc.number("1"),
+    TokWithLoc.paren(")"),
+  ]; 
+  let err = new ParseError(Tokens.keyword('def', new ImmutableLocation(5, 5, 0)));
+  expect(() => parse(input)).toThrowError(err)
+
+  input = [
+    TokWithLoc.paren("("),
+    TokWithLoc.identifier("def"),
+    TokWithLoc.keyword("fn"),
+    TokWithLoc.number("1"),
+    TokWithLoc.paren(")"),
+  ]; 
+  err = new ParseError(Tokens.keyword('fn', new ImmutableLocation(5, 5, 0)));
+  expect(() => parse(input)).toThrowError(err)
+});
+
+test('rejects call expressions not using identifiers or operators', () => {
+  let input = [
+    TokWithLoc.paren("("),
+    TokWithLoc.string("x"),
+    TokWithLoc.paren(")"),
+  ]; 
+  let err = new ParseError(Tokens.string('def', new ImmutableLocation(1, 1, 0)));
+  expect(() => parse(input)).toThrowError(err) 
+
+  input = [
+    TokWithLoc.paren("("),
+    TokWithLoc.number("1"),
+    TokWithLoc.paren(")"),
+  ]; 
+  err = new ParseError(Tokens.number('1', new ImmutableLocation(1, 1, 0)));
+  expect(() => parse(input)).toThrowError(err) 
+})

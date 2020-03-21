@@ -1,6 +1,6 @@
 import { Location } from "./reader";
 
-export class ErrorAtLocation extends Error {
+export abstract class ErrorAtLocation extends Error {
   constructor(message: string, readonly location: Location) {
     super(message);
   }

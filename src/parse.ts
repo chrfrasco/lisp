@@ -98,7 +98,7 @@ export const ASTNodes = {
   }
 };
 
-class ParseError extends ErrorAtLocation {
+export class ParseError extends ErrorAtLocation {
   constructor(token: Token) {
     super(`unexpected token of type ${token.type}`, token.location);
   }
