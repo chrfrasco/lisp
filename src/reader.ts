@@ -4,11 +4,20 @@ export class Reader {
     private readonly location: MutableLocation
   ) {}
 
-  peek(): string {
-    return this.source[this.location.offset];
+  currentLocation(): Location {
+    return this.location.snapshot();
+  }
+
+  peek(ahead: number = 0): string {
+    return this.source[this.location.offset + ahead];
   }
 
   next(): string {
+    if (this.peek() === '\n') {
+      this.location.nextLine();
+      return this.peek();
+    }
+
     this.location.nextChar();
     return this.peek();
   }
@@ -19,7 +28,7 @@ export class Reader {
 
   takeCharsWhile(predicate: (char: string) => boolean) {
     let value = "";
-    while (predicate(this.peek())) {
+    while (this.hasMoreChars() && predicate(this.peek())) {
       value += this.source[this.location.offset];
       this.location.nextChar();
     }
@@ -55,7 +64,7 @@ export class MutableLocation implements Location {
   private currentLine: number = 0;
 
   snapshot(): Location {
-    return { ...this };
+    return new ImmutableLocation(this.offset, this.charInLine, this.line);
   }
 
   nextChar() {

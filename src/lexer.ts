@@ -1,55 +1,20 @@
-import { isKeyword, Keyword } from "./keywords";
+import { isKeyword } from "./keywords";
 import { MutableLocation, Reader } from "./reader";
-
-export enum TokenKind {
-  NUMBER = "NUMBER",
-  STRING = "STRING",
-  PAREN = "PAREN",
-  OPERATOR = "OPERATOR",
-  IDENTIFIER = "IDENTIFIER",
-  KEYWORD = "KEYWORD",
-  PARAMETER = "PARAMETER"
-}
-
-export type Token =
-  | {
-      type: Exclude<TokenKind, TokenKind.KEYWORD | TokenKind.OPERATOR>;
-      value: string;
-    }
-  | { type: TokenKind.KEYWORD; value: Keyword }
-  | { type: TokenKind.OPERATOR; value: OperatorChar };
-
-export const Tokens = {
-  paren(value: string): Token {
-    return { type: TokenKind.PAREN, value };
-  },
-  number(value: string): Token {
-    return { type: TokenKind.NUMBER, value };
-  },
-  operator(value: OperatorChar): Token {
-    return { type: TokenKind.OPERATOR, value };
-  },
-  identifier(value: string): Token {
-    return { type: TokenKind.IDENTIFIER, value };
-  },
-  string(value: string): Token {
-    return { type: TokenKind.STRING, value };
-  },
-  keyword(value: Keyword): Token {
-    return { type: TokenKind.KEYWORD, value };
-  },
-  parameter(value: string): Token {
-    return { type: TokenKind.PARAMETER, value };
-  }
-};
+import { Token, Tokens, OperatorChar } from "./tokens";
 
 export default function lexer(source: string): Token[] {
   const tokens: Token[] = [];
-  const location = new MutableLocation();
-  const reader = new Reader(source, location);
+  const _location = new MutableLocation();
+  const reader = new Reader(source, _location);
 
   while (reader.hasMoreChars()) {
     let char = reader.peek();
+
+    if (char === '\n') {
+      tokens.push(Tokens.newline(reader.currentLocation()));
+      reader.next();
+      continue;
+    }
 
     if (isWhitespace(char)) {
       reader.next();
@@ -57,51 +22,55 @@ export default function lexer(source: string): Token[] {
     }
 
     if (isNumeric(char)) {
+      const location = reader.currentLocation();
       const value = reader.takeCharsWhile(isNumeric);
-      tokens.push(Tokens.number(value));
+      tokens.push(Tokens.number(value, location));
       continue;
     }
 
     if (isAlpha(char)) {
+      const location = reader.currentLocation();
       const value = reader.takeCharsWhile(isAlphaNumeric);
       if (isKeyword(value)) {
-        tokens.push(Tokens.keyword(value));
+        tokens.push(Tokens.keyword(value, location));
       } else {
-        tokens.push(Tokens.identifier(value));
+        tokens.push(Tokens.identifier(value, location));
       }
       continue;
     }
 
     if (char === "(" || char === ")") {
-      tokens.push(Tokens.paren(char));
+      const location = reader.currentLocation();
+      tokens.push(Tokens.paren(char, location));
       reader.next();
       continue;
     }
 
     if (char === "[") {
-      reader.next();
-      const value = reader.takeCharsWhile(s => s !== "]");
-      value
-        .trim()
-        .split(/\W+/)
-        .filter(s => s !== "")
-        .forEach(arg => tokens.push(Tokens.parameter(arg)));
+      while (reader.peek() !== ']') {
+        reader.next();
+        const location = reader.currentLocation();
+        const value = reader.takeCharsWhile(s => !isWhitespace(s) && s !== "]");
+        value && tokens.push(Tokens.parameter(value, location));
+      }
+
       reader.next();
       continue;
     }
 
     if (isOperator(char)) {
-      tokens.push(Tokens.operator(char));
+      tokens.push(Tokens.operator(char, reader.currentLocation()));
       reader.next();
       continue;
     }
 
     if (char === '"' || char === `'`) {
+      const location = reader.currentLocation();
       const quoteKind = char;
       reader.next(); // skip open quote
 
       const value = reader.takeCharsWhile(s => s !== quoteKind);
-      tokens.push(Tokens.string(value));
+      tokens.push(Tokens.string(value, location));
 
       reader.next(); // skip closing quote
       continue;
@@ -129,7 +98,6 @@ function isNumeric(s: string): boolean {
   return /[0-9]/.test(s);
 }
 
-type OperatorChar = "+" | "-" | "*" | "/";
 const operatorChars: string[] = ["+", "-", "*", "/"];
 function isOperator(s: string): s is OperatorChar {
   return operatorChars.includes(s);

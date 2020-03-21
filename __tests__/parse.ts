@@ -1,5 +1,15 @@
 import parse, { ASTNodes } from "../src/parse";
-import { Tokens } from "../src/lexer";
+import { Tokens } from "../src/tokens";
+import { ImmutableLocation } from "../src/reader";
+
+const TokWithLoc = new Proxy({}, {
+  get(_: any, prop: string) {
+    if (prop in Tokens) {
+      return (value: any) => Tokens[prop](value, expect.any(ImmutableLocation));
+    }
+    throw new TypeError(`no builder with name ${prop}`);
+  },
+})
 
 test("handles empty list", () => {
   expect(parse([])).toEqual(ASTNodes.program([]));
@@ -7,11 +17,11 @@ test("handles empty list", () => {
 
 test("operators", () => {
   const input = [
-    Tokens.paren("("),
-    Tokens.operator("+"),
-    Tokens.number("1"),
-    Tokens.number("1"),
-    Tokens.paren(")")
+    TokWithLoc.paren("("),
+    TokWithLoc.operator("+"),
+    TokWithLoc.number("1"),
+    TokWithLoc.number("1"),
+    TokWithLoc.paren(")")
   ];
   const output = ASTNodes.program([
     ASTNodes.callExpression("+", [
@@ -24,11 +34,11 @@ test("operators", () => {
 
 test("identifiers", () => {
   const input = [
-    Tokens.paren("("),
-    Tokens.identifier("add"),
-    Tokens.number("1"),
-    Tokens.number("1"),
-    Tokens.paren(")")
+    TokWithLoc.paren("("),
+    TokWithLoc.identifier("add"),
+    TokWithLoc.number("1"),
+    TokWithLoc.number("1"),
+    TokWithLoc.paren(")")
   ];
   const output = ASTNodes.program([
     ASTNodes.callExpression("add", [
@@ -41,10 +51,10 @@ test("identifiers", () => {
 
 test("string literals", () => {
   const input = [
-    Tokens.paren("("),
-    Tokens.identifier("print"),
-    Tokens.string("hello, world"),
-    Tokens.paren(")")
+    TokWithLoc.paren("("),
+    TokWithLoc.identifier("print"),
+    TokWithLoc.string("hello, world"),
+    TokWithLoc.paren(")")
   ];
   const output = ASTNodes.program([
     ASTNodes.callExpression("print", [ASTNodes.stringLiteral("hello, world")])
@@ -54,11 +64,11 @@ test("string literals", () => {
 
 test("variable assignment", () => {
   const input = [
-    Tokens.paren("("),
-    Tokens.keyword("def"),
-    Tokens.identifier("x"),
-    Tokens.number("1"),
-    Tokens.paren(")")
+    TokWithLoc.paren("("),
+    TokWithLoc.keyword("def"),
+    TokWithLoc.identifier("x"),
+    TokWithLoc.number("1"),
+    TokWithLoc.paren(")")
   ];
   const output = ASTNodes.program([
     ASTNodes.variableAssignment("x", ASTNodes.numberLiteral("1"))
@@ -68,11 +78,11 @@ test("variable assignment", () => {
 
 test("function declaration with no arguments", () => {
   const input = [
-    Tokens.paren("("),
-    Tokens.keyword("fn"),
-    Tokens.identifier("foo"),
-    Tokens.number("1"),
-    Tokens.paren(")")
+    TokWithLoc.paren("("),
+    TokWithLoc.keyword("fn"),
+    TokWithLoc.identifier("foo"),
+    TokWithLoc.number("1"),
+    TokWithLoc.paren(")")
   ];
   const output = ASTNodes.program([
     ASTNodes.functionDeclaration("foo", [], ASTNodes.numberLiteral("1"))
@@ -82,12 +92,12 @@ test("function declaration with no arguments", () => {
 
 test("function declaration with one argument", () => {
   const input = [
-    Tokens.paren("("),
-    Tokens.keyword("fn"),
-    Tokens.identifier("foo"),
-    Tokens.parameter("x"),
-    Tokens.number("1"),
-    Tokens.paren(")")
+    TokWithLoc.paren("("),
+    TokWithLoc.keyword("fn"),
+    TokWithLoc.identifier("foo"),
+    TokWithLoc.parameter("x"),
+    TokWithLoc.number("1"),
+    TokWithLoc.paren(")")
   ];
   const output = ASTNodes.program([
     ASTNodes.functionDeclaration("foo", ["x"], ASTNodes.numberLiteral("1"))
@@ -97,13 +107,13 @@ test("function declaration with one argument", () => {
 
 test("function declaration with multiple arguments", () => {
   const input = [
-    Tokens.paren("("),
-    Tokens.keyword("fn"),
-    Tokens.identifier("foo"),
-    Tokens.parameter("x"),
-    Tokens.parameter("y"),
-    Tokens.number("1"),
-    Tokens.paren(")")
+    TokWithLoc.paren("("),
+    TokWithLoc.keyword("fn"),
+    TokWithLoc.identifier("foo"),
+    TokWithLoc.parameter("x"),
+    TokWithLoc.parameter("y"),
+    TokWithLoc.number("1"),
+    TokWithLoc.paren(")")
   ];
   const output = ASTNodes.program([
     ASTNodes.functionDeclaration("foo", ["x", "y"], ASTNodes.numberLiteral("1"))
@@ -113,19 +123,19 @@ test("function declaration with multiple arguments", () => {
 
 test("function declaration with complex body", () => {
   const input = [
-    Tokens.paren("("),
-    Tokens.keyword("fn"),
-    Tokens.identifier("foo"),
-    Tokens.parameter("x"),
-    Tokens.paren("("),
-    Tokens.identifier("print"),
-    Tokens.paren("("),
-    Tokens.operator("+"),
-    Tokens.number("1"),
-    Tokens.number("1"),
-    Tokens.paren(")"),
-    Tokens.paren(")"),
-    Tokens.paren(")")
+    TokWithLoc.paren("("),
+    TokWithLoc.keyword("fn"),
+    TokWithLoc.identifier("foo"),
+    TokWithLoc.parameter("x"),
+    TokWithLoc.paren("("),
+    TokWithLoc.identifier("print"),
+    TokWithLoc.paren("("),
+    TokWithLoc.operator("+"),
+    TokWithLoc.number("1"),
+    TokWithLoc.number("1"),
+    TokWithLoc.paren(")"),
+    TokWithLoc.paren(")"),
+    TokWithLoc.paren(")")
   ];
   const output = ASTNodes.program([
     ASTNodes.functionDeclaration(
@@ -144,14 +154,14 @@ test("function declaration with complex body", () => {
 
 test("nested call expressions", () => {
   const input = [
-    Tokens.paren("("),
-    Tokens.identifier("print"),
-    Tokens.paren("("),
-    Tokens.operator("+"),
-    Tokens.number("1"),
-    Tokens.number("1"),
-    Tokens.paren(")"),
-    Tokens.paren(")")
+    TokWithLoc.paren("("),
+    TokWithLoc.identifier("print"),
+    TokWithLoc.paren("("),
+    TokWithLoc.operator("+"),
+    TokWithLoc.number("1"),
+    TokWithLoc.number("1"),
+    TokWithLoc.paren(")"),
+    TokWithLoc.paren(")")
   ];
   const output = ASTNodes.program([
     ASTNodes.callExpression("print", [

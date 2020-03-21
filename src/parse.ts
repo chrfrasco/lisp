@@ -1,4 +1,4 @@
-import { Token, TokenKind } from "./lexer";
+import { Token, TokenKind, KeywordToken, IdentifierToken, OperatorChar, OperatorToken } from "./tokens";
 import { UnreachableError, Preconditions } from "./preconditions";
 
 export enum ASTNodeKind {
@@ -68,6 +68,9 @@ export default function parse(tokens: readonly Token[]) {
 
   function walk(): ASTNode {
     let token = tokens[current];
+    while (token.type === TokenKind.NEWLINE) {
+      token = tokens[++current];
+    }
 
     if (token.type === TokenKind.NUMBER) {
       current++;
@@ -82,25 +85,15 @@ export default function parse(tokens: readonly Token[]) {
     if (token.type === TokenKind.PAREN && token.value === "(") {
       token = tokens[++current];
 
-      let node: ASTNode;
       if (token.type === TokenKind.KEYWORD) {
-        switch (token.value) {
-          case "def": {
-            node = handleVariableAssignment();
-            break;
-          }
-          case "fn": {
-            node = handleFunctionDeclaration();
-            break;
-          }
-          default:
-            throw new UnreachableError(token.value);
-        }
-      } else {
-        node = handleCallExpression();
+        return handleKeyword(token);
       }
 
-      return node;
+      if (token.type === TokenKind.IDENTIFIER || token.type === TokenKind.OPERATOR) {
+        return handleCallExpression(token);
+      }
+
+      throw new ParseError(token);
     }
 
     if (token.type === TokenKind.IDENTIFIER) {
@@ -108,16 +101,27 @@ export default function parse(tokens: readonly Token[]) {
       return ASTNodes.identifier(token.value);
     }
 
-    throw new TypeError(
-      `unhandled token of type ${token.type}: ${token.value}`
-    );
+    throw new ParseError(token);
+  }
+
+  function handleKeyword(token: KeywordToken): ASTNode {
+    switch (token.value) {
+      case "def": {
+        return handleVariableAssignment();
+      }
+      case "fn": {
+        return handleFunctionDeclaration();
+      }
+      default:
+        throw new UnreachableError(token.value);
+    }
   }
 
   function handleVariableAssignment(): ASTNode {
     let token = tokens[++current];
     Preconditions.checkState(
       token.type === TokenKind.IDENTIFIER,
-      `expected IDENTIFIER, got ${token.type}: ${token.value}`
+      `expected IDENTIFIER, got ${token.type}: ${token}`
     );
     const name = token.value;
     current++;
@@ -128,10 +132,9 @@ export default function parse(tokens: readonly Token[]) {
 
   function handleFunctionDeclaration(): ASTNode {
     let token = tokens[++current];
-
     Preconditions.checkState(
       token.type === TokenKind.IDENTIFIER,
-      "expected a name"
+      `expected IDENTIFIER, got ${token.type}: ${token}`
     );
     const name = token.value;
 
@@ -148,12 +151,11 @@ export default function parse(tokens: readonly Token[]) {
     return node;
   }
 
-  function handleCallExpression(): ASTNode {
-    let token = tokens[current];
+  function handleCallExpression(callingToken: IdentifierToken | OperatorToken): ASTNode {
     const params: ASTNode[] = [];
-    const name = token.value;
+    const name = callingToken.value;
 
-    token = tokens[++current];
+    let token = tokens[++current];
     while (
       token.type !== TokenKind.PAREN ||
       (token.type === TokenKind.PAREN && token.value !== ")")
@@ -172,4 +174,10 @@ export default function parse(tokens: readonly Token[]) {
   }
 
   return ASTNodes.program(body);
+}
+
+export class ParseError extends Error {
+  constructor(private readonly token: Token) {
+    super(`unexpected token of type ${token.type}`);
+  }
 }
