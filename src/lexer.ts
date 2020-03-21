@@ -1,3 +1,5 @@
+import { isKeyword, Keyword } from "./keywords";
+
 export enum TokenKind {
   NUMBER = "NUMBER",
   STRING = "STRING",
@@ -8,9 +10,9 @@ export enum TokenKind {
   PARAMETER = "PARAMETER"
 }
 
-export type Token = { type: TokenKind; value: string };
-
-export const KEYWORDS = new Set(["def", "fn"]);
+export type Token =
+  | { type: Exclude<TokenKind, TokenKind.KEYWORD>; value: string }
+  | { type: TokenKind.KEYWORD; value: Keyword };
 
 export default function lexer(input: string): Token[] {
   const tokens: Token[] = [];
@@ -40,7 +42,7 @@ export default function lexer(input: string): Token[] {
 
     if (isAlpha(char)) {
       const value = takeCharsWhile(isAlphaNumeric);
-      if (KEYWORDS.has(value)) {
+      if (isKeyword(value)) {
         tokens.push({ type: TokenKind.KEYWORD, value });
       } else {
         tokens.push({ type: TokenKind.IDENTIFIER, value });
@@ -104,7 +106,7 @@ function isNumeric(s: string): boolean {
   return /[0-9]/.test(s);
 }
 
-type OperatorChar = '+' | '-' | '*' | '/';
+type OperatorChar = "+" | "-" | "*" | "/";
 const operatorChars: string[] = ["+", "-", "*", "/"];
 function isOperator(s: string): s is OperatorChar {
   return operatorChars.includes(s);

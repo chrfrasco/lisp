@@ -1,53 +1,76 @@
-import {
-  NUMBER,
-  STRING,
-  PAREN,
-  KEYWORD,
-  IDENTIFIER,
-  NUMBER_LITERAL,
-  STRING_LITERAL,
-  CALL_EXPRESSION,
-  VARIABLE_ASSIGNMENT,
-  PROGRAM,
-  KEYWORDS,
-  PARAMETER,
-  FUNCTION_DECLARATION
-} from "../src/constants";
+import { Token, TokenKind } from "./lexer";
+import { UnreachableError } from "./unreachable";
 
-export default function parse(tokens) {
+export enum ASTNodeKind {
+  PROGRAM = "PROGRAM",
+  NUMBER_LITERAL = "NUMBER_LITERAL",
+  STRING_LITERAL = "STRING_LITERAL",
+  CALL_EXPRESSION = "CALL_EXPRESSION",
+  VARIABLE_ASSIGNMENT = "VARIABLE_ASSIGNMENT",
+  FUNCTION_DECLARATION = "FUNCTION_DECLARATION",
+  IDENTIFIER = "IDENTIFIER"
+}
+
+export type ASTNode =
+  | { type: ASTNodeKind.PROGRAM; body: readonly ASTNode[] }
+  | { type: ASTNodeKind.VARIABLE_ASSIGNMENT; name: string; value: ASTNode }
+  | {
+      type: ASTNodeKind.FUNCTION_DECLARATION;
+      name: string;
+      params: readonly string[];
+      body: ASTNode;
+    }
+  | {
+      type: ASTNodeKind.CALL_EXPRESSION;
+      name: string;
+      params: readonly ASTNode[];
+    }
+  | {
+      type:
+        | ASTNodeKind.STRING_LITERAL
+        | ASTNodeKind.NUMBER_LITERAL
+        | ASTNodeKind.IDENTIFIER;
+      value: string;
+    };
+
+export default function parse(tokens: readonly Token[]) {
   let current = 0;
 
-  function walk() {
+  function walk(): ASTNode {
     let token = tokens[current];
 
-    if (token.type === NUMBER) {
+    if (token.type === TokenKind.NUMBER) {
       current++;
       return {
-        type: NUMBER_LITERAL,
+        type: ASTNodeKind.NUMBER_LITERAL,
         value: token.value
       };
     }
 
-    if (token.type === STRING) {
+    if (token.type === TokenKind.STRING) {
       current++;
       return {
-        type: STRING_LITERAL,
+        type: ASTNodeKind.STRING_LITERAL,
         value: token.value
       };
     }
 
-    if (token.type === PAREN && token.value === "(") {
+    if (token.type === TokenKind.PAREN && token.value === "(") {
       token = tokens[++current];
 
-      let node;
-      if (token.type === KEYWORD) {
-        const keywordType = KEYWORDS[token.value];
-        if (keywordType === VARIABLE_ASSIGNMENT) {
-          node = handleVariableAssignment();
-        }
-
-        if (keywordType === FUNCTION_DECLARATION) {
-          node = handleFunctionDeclaration();
+      let node: ASTNode;
+      if (token.type === TokenKind.KEYWORD) {
+        switch (token.value) {
+          case "def": {
+            node = handleVariableAssignment();
+            break;
+          }
+          case "fn": {
+            node = handleFunctionDeclaration();
+            break;
+          }
+          default:
+            throw new UnreachableError(token.value);
         }
       } else {
         node = handleCallExpression();
@@ -56,10 +79,10 @@ export default function parse(tokens) {
       return node;
     }
 
-    if (token.type === IDENTIFIER) {
+    if (token.type === TokenKind.IDENTIFIER) {
       current++;
       return {
-        type: IDENTIFIER,
+        type: ASTNodeKind.IDENTIFIER,
         value: token.value
       };
     }
@@ -69,41 +92,38 @@ export default function parse(tokens) {
     );
   }
 
-  /**
-   * @returns {{name: string, type: string, value: {type, value}}}
-   */
-  function handleVariableAssignment() {
+  function handleVariableAssignment(): ASTNode {
     let token = tokens[++current];
     assert(
-      token.type === IDENTIFIER,
+      token.type === TokenKind.IDENTIFIER,
       `expected IDENTIFIER, got ${token.type}: ${token.value}`
     );
     const name = token.value;
     current++;
-    const node = {
+    const node: ASTNode = {
       name,
-      type: VARIABLE_ASSIGNMENT,
+      type: ASTNodeKind.VARIABLE_ASSIGNMENT,
       value: walk()
     };
     current++;
     return node;
   }
 
-  function handleFunctionDeclaration() {
+  function handleFunctionDeclaration(): ASTNode {
     let token = tokens[++current];
 
-    assert(token.type === IDENTIFIER, "expected a name");
+    assert(token.type === TokenKind.IDENTIFIER, "expected a name");
     const name = token.value;
 
     let params = [];
     token = tokens[++current];
-    while (token.type === PARAMETER) {
+    while (token.type === TokenKind.PARAMETER) {
       params.push(token.value);
       token = tokens[++current];
     }
 
-    const node = {
-      type: FUNCTION_DECLARATION,
+    const node: ASTNode = {
+      type: ASTNodeKind.FUNCTION_DECLARATION,
       name,
       params,
       body: walk()
@@ -113,44 +133,42 @@ export default function parse(tokens) {
     return node;
   }
 
-  /**
-   * @returns {{type: string, name: string, params: Array}}
-   */
-  function handleCallExpression() {
+  function handleCallExpression(): ASTNode {
     let token = tokens[current];
-    const node = {
-      type: CALL_EXPRESSION,
-      name: token.value,
-      params: []
-    };
+    const params: ASTNode[] = [];
+    const name = token.value;
 
     token = tokens[++current];
     while (
-      token.type !== PAREN ||
-      (token.type === PAREN && token.value !== ")")
+      token.type !== TokenKind.PAREN ||
+      (token.type === TokenKind.PAREN && token.value !== ")")
     ) {
-      node.params.push(walk());
+      params.push(walk());
       token = tokens[current];
     }
 
     current++;
-    return node;
+    return {
+      type: ASTNodeKind.CALL_EXPRESSION,
+      name,
+      params
+    };
   }
 
-  const ast = {
-    type: PROGRAM,
-    body: []
-  };
-
+  const body: ASTNode[] = [];
   while (current < tokens.length) {
-    ast.body.push(walk());
+    body.push(walk());
   }
 
-  return ast;
+  return { type: ASTNodeKind.PROGRAM, body };
 }
 
-function assert(assertion, message, errConstructor = TypeError) {
-  if (!assertion) {
+function assert(
+  cond: boolean,
+  message: string,
+  errConstructor = TypeError
+): asserts cond {
+  if (!cond) {
     throw new errConstructor(message);
   }
 }
