@@ -3,7 +3,7 @@ import parser from "./parse";
 import run from "./run";
 import { Scope, RuntimeValue } from "./scope";
 
-export default function lisp(
+export function evaluate(
   input: string,
   globals = Scope.prelude()
 ): RuntimeValue {

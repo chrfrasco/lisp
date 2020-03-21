@@ -1,5 +1,5 @@
 import * as readline from "readline";
-import lisp from "./index";
+import { evaluate } from "./evaluate";
 import { RuntimeValues } from "./scope";
 
 const lineReader = readline.createInterface({
@@ -15,7 +15,7 @@ function ask() {
       process.exit(0);
     }
 
-    const result = lisp(answer);
+    const result = evaluate(answer);
     console.log(RuntimeValues.repr(result));
 
     ask();

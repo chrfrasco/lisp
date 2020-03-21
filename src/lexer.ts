@@ -76,10 +76,16 @@ export default function lexer(source: string): Token[] {
       continue;
     }
 
-    throw TypeError(`Unrecognised character ${char}`);
+    throw new TypeError(`Unrecognised character ${char}`);
   }
 
   return tokens;
+}
+
+export class LexError extends Error {
+  constructor(char: string, private readonly location: Location) {
+    super(`unexpected characted ${char}`);
+  }
 }
 
 function isWhitespace(s: string): boolean {
