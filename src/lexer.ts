@@ -64,22 +64,22 @@ export default function lexer(input: string): Token[] {
 
     if (isNumeric(char)) {
       const value = takeCharsWhile(isNumeric);
-      tokens.push({ type: TokenKind.NUMBER, value });
+      tokens.push(Tokens.number(value));
       continue;
     }
 
     if (isAlpha(char)) {
       const value = takeCharsWhile(isAlphaNumeric);
       if (isKeyword(value)) {
-        tokens.push({ type: TokenKind.KEYWORD, value });
+        tokens.push(Tokens.keyword(value));
       } else {
-        tokens.push({ type: TokenKind.IDENTIFIER, value });
+        tokens.push(Tokens.identifier(value));
       }
       continue;
     }
 
     if (char === "(" || char === ")") {
-      tokens.push({ type: TokenKind.PAREN, value: char });
+      tokens.push(Tokens.paren(char));
       current++;
       continue;
     }
@@ -91,13 +91,13 @@ export default function lexer(input: string): Token[] {
         .trim()
         .split(/\W+/)
         .filter(s => s !== "")
-        .forEach(arg => tokens.push({ type: TokenKind.PARAMETER, value: arg }));
+        .forEach(arg => tokens.push(Tokens.parameter(arg)));
       current++;
       continue;
     }
 
     if (isOperator(char)) {
-      tokens.push({ type: TokenKind.OPERATOR, value: char });
+      tokens.push(Tokens.operator(char));
       current++;
       continue;
     }
@@ -106,7 +106,7 @@ export default function lexer(input: string): Token[] {
       current++; // skip open quote
 
       const value = takeCharsWhile(s => s !== '"');
-      tokens.push({ type: TokenKind.STRING, value });
+      tokens.push(Tokens.string(value));
 
       current++; // skip closing quote
       continue;
