@@ -1,16 +1,15 @@
 import run from "../src/run";
 import { ASTNode, ASTNodes } from "../src/parse";
-import { Scope } from "../src/scope";
+import { Scope, RuntimeValueBuilders } from "../src/scope";
 
 test("runs a full program", () => {
   const program = ASTNodes.program([
     ASTNodes.callExpression("print", [ASTNodes.stringLiteral("hello, world")])
   ]);
   const print = jest.fn();
-  const scope = new Scope([["print", print]]);
+  const scope = Scope.forTesting(print);
   run(program, scope);
-  expect(print.mock.calls.length).toEqual(1);
-  expect(print.mock.calls[0][0]).toEqual("hello, world");
+  expect(print).toHaveBeenCalledWith("hello, world");
 });
 
 test("adds two numbers", () => {
@@ -18,7 +17,7 @@ test("adds two numbers", () => {
     ASTNodes.numberLiteral("1"),
     ASTNodes.numberLiteral("1")
   ]);
-  expect(run(program)).toEqual(2);
+  expect(run(program)).toEqual(RuntimeValueBuilders.number(2));
 });
 
 test("can assign variables", () => {
@@ -27,8 +26,7 @@ test("can assign variables", () => {
   ]);
   const scope = new Scope();
   run(program, scope);
-  // TODO(christianscott): remove any cast
-  expect(scope.get("x")).toBe(1);
+  expect(scope.get("x")).toEqual(RuntimeValueBuilders.number(1));
 });
 
 test("function declaration", () => {
@@ -49,8 +47,7 @@ test("function declaration", () => {
     ])
   ]);
   const print = jest.fn();
-  const scope = Scope.prelude().with([["print", print]]);
+  const scope = Scope.forTesting(print);
   run(program, scope);
-  expect(print.mock.calls.length).toEqual(1);
-  expect(print.mock.calls[0][0]).toEqual(2);
+  expect(print).toHaveBeenCalledWith(2);
 });

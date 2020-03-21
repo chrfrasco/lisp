@@ -3,10 +3,7 @@ import parser from "./parse";
 import run from "./run";
 import { Scope } from "./scope";
 
-export default function lisp(
-  input: string,
-  globals = Scope.prelude(),
-) {
+export default function lisp(input: string, globals = Scope.prelude()) {
   return pipe(lexer, parser, ast => run(ast, globals))(input);
 }
 
