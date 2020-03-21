@@ -1,5 +1,6 @@
 import * as readline from "readline";
 import lisp from "./index";
+import { RuntimeValues } from "./scope";
 
 const lineReader = readline.createInterface({
   input: process.stdin,
@@ -15,9 +16,7 @@ function ask() {
     }
 
     const result = lisp(answer);
-    if (result != null) {
-      console.log(result);
-    }
+    console.log(RuntimeValues.repr(result));
 
     ask();
   });

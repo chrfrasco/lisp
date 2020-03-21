@@ -62,10 +62,10 @@ export default function run(
 }
 
 function makeFunction(
-  { params, body }: FunctionDeclarationNode,
+  { params, body, name }: FunctionDeclarationNode,
   parentScope: Scope
 ): RuntimeFunctionValue {
-  return RuntimeValueBuilders.function((...args: RuntimeValue[]) => {
+  return RuntimeValueBuilders.function(name, (...args: RuntimeValue[]) => {
     const scope = parentScope.with(zip(params, args));
     return run(body, scope);
   });

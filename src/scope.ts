@@ -1,4 +1,4 @@
-import { Preconditions } from "./preconditions";
+import { Preconditions, UnreachableError } from "./preconditions";
 
 export enum RuntimeValueKind {
   STRING = "STRING",
@@ -9,6 +9,7 @@ export enum RuntimeValueKind {
 
 export type RuntimeFunctionValue = {
   kind: RuntimeValueKind.FUNCTION;
+  name: string;
   value: (...args: RuntimeValue[]) => RuntimeValue;
 };
 
@@ -20,9 +21,10 @@ export type RuntimeValue =
 
 export const RuntimeValueBuilders = {
   function(
+    name: string,
     value: (...args: RuntimeValue[]) => RuntimeValue
   ): RuntimeFunctionValue {
-    return { kind: RuntimeValueKind.FUNCTION, value };
+    return { kind: RuntimeValueKind.FUNCTION, name, value };
   },
   number(value: number): RuntimeValue {
     return { kind: RuntimeValueKind.NUMBER, value };
@@ -35,12 +37,28 @@ export const RuntimeValueBuilders = {
   }
 };
 
-export function jsPrimitiveFor(value: RuntimeValue): any {
-  if (value.kind === RuntimeValueKind.NIL) {
-    return undefined;
+export const RuntimeValues = {
+  jsPrimitiveFor(value: RuntimeValue): any {
+    if (value.kind === RuntimeValueKind.NIL) {
+      return undefined;
+    }
+    return value.value;
+  },
+  repr(value: RuntimeValue): string {
+    switch (value.kind) {
+      case RuntimeValueKind.NUMBER:
+        return String(value.value);
+      case RuntimeValueKind.STRING:
+        return `"` + value.value + `"`;
+      case RuntimeValueKind.FUNCTION:
+        return `fn ${value.name}`;
+      case RuntimeValueKind.NIL:
+        return "nil";
+      default:
+        throw new UnreachableError(value);
+    }
   }
-  return value.value;
-}
+};
 
 export class Scope {
   private readonly variables: Map<string, RuntimeValue>;
@@ -52,18 +70,19 @@ export class Scope {
   static prelude(): Scope {
     // prettier-ignore
     return new Scope([
-      ["print", RuntimeValueBuilders.function((...args) => {
-        console.log(...(args.map(jsPrimitiveFor)));
+      ["print", RuntimeValueBuilders.function('print', (...args) => {
+        console.log(...(args.map(RuntimeValues.jsPrimitiveFor)));
         return RuntimeValueBuilders.nil();
       })],
-      ["concat", RuntimeValueBuilders.function((...args) => {
+      ["concat", RuntimeValueBuilders.function('concat', (...args) => {
         for (const arg of args) {
           Preconditions.checkState(
             arg.kind === RuntimeValueKind.STRING,
             'concat expects all args to be strings',
           );
         }
-        return RuntimeValueBuilders.nil();
+        const concatted = args.map(RuntimeValues.jsPrimitiveFor).join('');
+        return RuntimeValueBuilders.string(concatted);
       })],
       ["+", makeNumberOperator("+", (a, b) => a + b)],
       ["-", makeNumberOperator("-", (a, b) => a - b)],
@@ -74,8 +93,8 @@ export class Scope {
   }
 
   static forTesting(printImpl: (...args: any[]) => void): Scope {
-    const printValue = RuntimeValueBuilders.function((...args) => {
-      printImpl(...args.map(jsPrimitiveFor));
+    const printValue = RuntimeValueBuilders.function("print", (...args) => {
+      printImpl(...args.map(RuntimeValues.jsPrimitiveFor));
       return RuntimeValueBuilders.nil();
     });
     return Scope.prelude().with([["print", printValue]]);
@@ -107,11 +126,15 @@ function makeNumberOperator(
   name: string,
   op: (a: number, b: number) => number
 ) {
-  return RuntimeValueBuilders.function((a: RuntimeValue, b: RuntimeValue) => {
-    Preconditions.checkState(
-      a.kind === RuntimeValueKind.NUMBER && b.kind === RuntimeValueKind.NUMBER,
-      `${name} expects two numbers`
-    );
-    return RuntimeValueBuilders.number(op(a.value, b.value));
-  });
+  return RuntimeValueBuilders.function(
+    name,
+    (a: RuntimeValue, b: RuntimeValue) => {
+      Preconditions.checkState(
+        a.kind === RuntimeValueKind.NUMBER &&
+          b.kind === RuntimeValueKind.NUMBER,
+        `${name} expects two numbers`
+      );
+      return RuntimeValueBuilders.number(op(a.value, b.value));
+    }
+  );
 }

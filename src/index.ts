@@ -1,9 +1,12 @@
 import lexer from "./lexer";
 import parser from "./parse";
 import run from "./run";
-import { Scope } from "./scope";
+import { Scope, RuntimeValue } from "./scope";
 
-export default function lisp(input: string, globals = Scope.prelude()) {
+export default function lisp(
+  input: string,
+  globals = Scope.prelude()
+): RuntimeValue {
   return pipe(lexer, parser, ast => run(ast, globals))(input);
 }
 
