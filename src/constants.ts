@@ -1,10 +1,12 @@
-export const NUMBER = "NUMBER";
-export const STRING = "STRING";
-export const PAREN = "PAREN";
-export const OPERATOR = "OPERATOR";
-export const IDENTIFIER = "IDENTIFIER";
-export const KEYWORD = "KEYWORD";
-export const PARAMETER = "PARAMETER";
+import { TokenKind } from "./lexer";
+
+export const NUMBER = TokenKind.NUMBER;
+export const STRING = TokenKind.STRING;
+export const PAREN = TokenKind.PAREN;
+export const OPERATOR = TokenKind.OPERATOR;
+export const IDENTIFIER = TokenKind.IDENTIFIER;
+export const KEYWORD = TokenKind.KEYWORD;
+export const PARAMETER = TokenKind.PARAMETER;
 
 export const PROGRAM = "PROGRAM";
 export const NUMBER_LITERAL = "NUMBER_LITERAL";

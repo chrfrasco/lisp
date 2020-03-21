@@ -1,19 +1,22 @@
-import {
-  NUMBER,
-  STRING,
-  PAREN,
-  OPERATOR,
-  IDENTIFIER,
-  KEYWORD,
-  KEYWORDS,
-  PARAMETER
-} from "./constants";
+export enum TokenKind {
+  NUMBER = "NUMBER",
+  STRING = "STRING",
+  PAREN = "PAREN",
+  OPERATOR = "OPERATOR",
+  IDENTIFIER = "IDENTIFIER",
+  KEYWORD = "KEYWORD",
+  PARAMETER = "PARAMETER"
+}
 
-export default function lexer(input) {
-  const tokens = [];
+export type Token = { type: TokenKind; value: string };
+
+export const KEYWORDS = new Set(["def", "fn"]);
+
+export default function lexer(input: string): Token[] {
+  const tokens: Token[] = [];
   let current = 0;
 
-  function takeCharsWhile(predicate) {
+  function takeCharsWhile(predicate: (char: string) => boolean) {
     let value = "";
     while (predicate(input[current])) {
       value += input[current++];
@@ -31,22 +34,22 @@ export default function lexer(input) {
 
     if (isNumeric(char)) {
       const value = takeCharsWhile(isNumeric);
-      tokens.push({ type: NUMBER, value });
+      tokens.push({ type: TokenKind.NUMBER, value });
       continue;
     }
 
     if (isAlpha(char)) {
       const value = takeCharsWhile(isAlphaNumeric);
-      if (KEYWORDS[value] != null) {
-        tokens.push({ type: KEYWORD, value });
+      if (KEYWORDS.has(value)) {
+        tokens.push({ type: TokenKind.KEYWORD, value });
       } else {
-        tokens.push({ type: IDENTIFIER, value });
+        tokens.push({ type: TokenKind.IDENTIFIER, value });
       }
       continue;
     }
 
     if (char === "(" || char === ")") {
-      tokens.push({ type: PAREN, value: char });
+      tokens.push({ type: TokenKind.PAREN, value: char });
       current++;
       continue;
     }
@@ -58,13 +61,13 @@ export default function lexer(input) {
         .trim()
         .split(/\W+/)
         .filter(s => s !== "")
-        .forEach(arg => tokens.push({ type: PARAMETER, value: arg }));
+        .forEach(arg => tokens.push({ type: TokenKind.PARAMETER, value: arg }));
       current++;
       continue;
     }
 
     if (isOperator(char)) {
-      tokens.push({ type: OPERATOR, value: char });
+      tokens.push({ type: TokenKind.OPERATOR, value: char });
       current++;
       continue;
     }
@@ -73,7 +76,7 @@ export default function lexer(input) {
       current++; // skip open quote
 
       const value = takeCharsWhile(s => s !== '"');
-      tokens.push({ type: STRING, value });
+      tokens.push({ type: TokenKind.STRING, value });
 
       current++; // skip closing quote
       continue;
@@ -85,22 +88,24 @@ export default function lexer(input) {
   return tokens;
 }
 
-function isWhitespace(s) {
+function isWhitespace(s: string): boolean {
   return /\s/.test(s);
 }
 
-function isAlphaNumeric(s) {
+function isAlphaNumeric(s: string): boolean {
   return isAlpha(s) || isNumeric(s);
 }
 
-function isAlpha(s) {
+function isAlpha(s: string): boolean {
   return /[a-z]/i.test(s);
 }
 
-function isNumeric(s) {
+function isNumeric(s: string): boolean {
   return /[0-9]/.test(s);
 }
 
-function isOperator(s) {
-  return ["+", "-", "*", "/"].includes(s);
+type OperatorChar = '+' | '-' | '*' | '/';
+const operatorChars: string[] = ["+", "-", "*", "/"];
+function isOperator(s: string): s is OperatorChar {
+  return operatorChars.includes(s);
 }
