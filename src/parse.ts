@@ -3,11 +3,11 @@ import {
   TokenKind,
   KeywordToken,
   IdentifierToken,
-  OperatorChar,
   OperatorToken
 } from "./tokens";
 import { UnreachableError, Preconditions } from "./preconditions";
 import { ErrorAtLocation } from "./error_at_location";
+import { Location, ImmutableLocation } from "./reader";
 
 export enum ASTNodeKind {
   PROGRAM = "PROGRAM",
@@ -19,15 +19,13 @@ export enum ASTNodeKind {
   IDENTIFIER = "IDENTIFIER"
 }
 
-export type FunctionNode = {
-  type: ASTNodeKind.FUNCTION_DECLARATION;
-  name: string;
-  params: readonly string[];
-  body: ASTNode;
-};
-
-export type ASTNode =
-  | FunctionNode
+export type ASTNode = { location: Location }
+  & ({
+    type: ASTNodeKind.FUNCTION_DECLARATION;
+    name: string;
+    params: readonly string[];
+    body: ASTNode;
+  }
   | { type: ASTNodeKind.PROGRAM; body: readonly ASTNode[] }
   | { type: ASTNodeKind.VARIABLE_ASSIGNMENT; name: string; value: ASTNode }
   | {
@@ -41,33 +39,35 @@ export type ASTNode =
         | ASTNodeKind.NUMBER_LITERAL
         | ASTNodeKind.IDENTIFIER;
       value: string;
-    };
+    });
+
+export type FunctionNode = Extract<ASTNode, { type: ASTNodeKind.FUNCTION_DECLARATION }>;
 
 export const ASTNodes = {
-  program(body: readonly ASTNode[]): ASTNode {
-    return { type: ASTNodeKind.PROGRAM, body };
+  program(body: readonly ASTNode[], location: Location): ASTNode {
+    return { type: ASTNodeKind.PROGRAM, location, body };
   },
-  variableAssignment(name: string, value: ASTNode): ASTNode {
-    return { type: ASTNodeKind.VARIABLE_ASSIGNMENT, name, value };
+  variableAssignment(name: string, value: ASTNode, location: Location): ASTNode {
+    return { type: ASTNodeKind.VARIABLE_ASSIGNMENT, location, name, value };
   },
-  callExpression(name: string, params: readonly ASTNode[]): ASTNode {
-    return { type: ASTNodeKind.CALL_EXPRESSION, name, params };
+  callExpression(name: string, params: readonly ASTNode[], location: Location): ASTNode {
+    return { type: ASTNodeKind.CALL_EXPRESSION, location, name, params };
   },
-  stringLiteral(value: string): ASTNode {
-    return { type: ASTNodeKind.STRING_LITERAL, value };
+  stringLiteral(value: string, location: Location): ASTNode {
+    return { type: ASTNodeKind.STRING_LITERAL, location, value };
   },
-  numberLiteral(value: string): ASTNode {
-    return { type: ASTNodeKind.NUMBER_LITERAL, value };
+  numberLiteral(value: string, location: Location): ASTNode {
+    return { type: ASTNodeKind.NUMBER_LITERAL, location, value };
   },
-  identifier(value: string): ASTNode {
-    return { type: ASTNodeKind.IDENTIFIER, value };
+  identifier(value: string, location: Location): ASTNode {
+    return { type: ASTNodeKind.IDENTIFIER, location, value };
   },
   functionDeclaration(
     name: string,
     params: readonly string[],
-    body: ASTNode
+    body: ASTNode, location: Location
   ): FunctionNode {
-    return { type: ASTNodeKind.FUNCTION_DECLARATION, name, params, body };
+    return { type: ASTNodeKind.FUNCTION_DECLARATION, location, name, params, body };
   }
 };
 
@@ -88,12 +88,12 @@ export default function parse(tokens: readonly Token[]) {
 
     if (token.type === TokenKind.NUMBER) {
       current++;
-      return ASTNodes.numberLiteral(token.value);
+      return ASTNodes.numberLiteral(token.value, token.location);
     }
 
     if (token.type === TokenKind.STRING) {
       current++;
-      return ASTNodes.stringLiteral(token.value);
+      return ASTNodes.stringLiteral(token.value, token.location);
     }
 
     if (token.type === TokenKind.PAREN && token.value === "(") {
@@ -115,7 +115,7 @@ export default function parse(tokens: readonly Token[]) {
 
     if (token.type === TokenKind.IDENTIFIER) {
       current++;
-      return ASTNodes.identifier(token.value);
+      return ASTNodes.identifier(token.value, token.location);
     }
 
     throw new ParseError(token);
@@ -142,7 +142,7 @@ export default function parse(tokens: readonly Token[]) {
     );
     const name = token.value;
     current++;
-    const node = ASTNodes.variableAssignment(name, walk());
+    const node = ASTNodes.variableAssignment(name, walk(), token.location);
     current++;
     return node;
   }
@@ -162,7 +162,7 @@ export default function parse(tokens: readonly Token[]) {
       token = tokens[++current];
     }
 
-    const node = ASTNodes.functionDeclaration(name, params, walk());
+    const node = ASTNodes.functionDeclaration(name, params, walk(), token.location);
 
     current++;
     return node;
@@ -184,7 +184,7 @@ export default function parse(tokens: readonly Token[]) {
     }
 
     current++;
-    return ASTNodes.callExpression(name, params);
+    return ASTNodes.callExpression(name, params, token.location);
   }
 
   const body: ASTNode[] = [];
@@ -192,5 +192,5 @@ export default function parse(tokens: readonly Token[]) {
     body.push(walk());
   }
 
-  return ASTNodes.program(body);
+  return ASTNodes.program(body, new ImmutableLocation(0, 0, 0));
 }

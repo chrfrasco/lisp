@@ -1,10 +1,25 @@
 import run from "../src/run";
 import { ASTNode, ASTNodes } from "../src/parse";
 import { Scope, RuntimeValueBuilders } from "../src/scope";
+import { ImmutableLocation } from "../src/reader";
+
+// DUPLICATE(#2)
+const ASTNodesWithLoc = new Proxy(
+  {},
+  {
+    get(_: any, prop: string): (...args: any[]) => ASTNode {
+      if (prop in ASTNodes) {
+        return (...args: any[]) =>
+          ASTNodes[prop](...args, expect.any(ImmutableLocation));
+      }
+      throw new TypeError(`no builder with name ${prop}`);
+    }
+  }
+);
 
 test("runs a full program", () => {
-  const program = ASTNodes.program([
-    ASTNodes.callExpression("print", [ASTNodes.stringLiteral("hello, world")])
+  const program = ASTNodesWithLoc.program([
+    ASTNodesWithLoc.callExpression("print", [ASTNodesWithLoc.stringLiteral("hello, world")])
   ]);
   const print = jest.fn();
   const scope = Scope.forTesting(print);
@@ -13,16 +28,16 @@ test("runs a full program", () => {
 });
 
 test("adds two numbers", () => {
-  const program = ASTNodes.callExpression("+", [
-    ASTNodes.numberLiteral("1"),
-    ASTNodes.numberLiteral("1")
+  const program = ASTNodesWithLoc.callExpression("+", [
+    ASTNodesWithLoc.numberLiteral("1"),
+    ASTNodesWithLoc.numberLiteral("1")
   ]);
   expect(run(program)).toEqual(RuntimeValueBuilders.number(2));
 });
 
 test("can assign variables", () => {
-  const program = ASTNodes.program([
-    ASTNodes.variableAssignment("x", ASTNodes.numberLiteral("1"))
+  const program = ASTNodesWithLoc.program([
+    ASTNodesWithLoc.variableAssignment("x", ASTNodesWithLoc.numberLiteral("1"))
   ]);
   const scope = new Scope();
   run(program, scope);
@@ -30,19 +45,19 @@ test("can assign variables", () => {
 });
 
 test("function declaration", () => {
-  const program: ASTNode = ASTNodes.program([
-    ASTNodes.functionDeclaration(
+  const program: ASTNode = ASTNodesWithLoc.program([
+    ASTNodesWithLoc.functionDeclaration(
       "add",
       ["x", "y"],
-      ASTNodes.callExpression("+", [
-        ASTNodes.identifier("x"),
-        ASTNodes.identifier("y")
+      ASTNodesWithLoc.callExpression("+", [
+        ASTNodesWithLoc.identifier("x"),
+        ASTNodesWithLoc.identifier("y")
       ])
     ),
-    ASTNodes.callExpression("print", [
-      ASTNodes.callExpression("add", [
-        ASTNodes.numberLiteral("1"),
-        ASTNodes.numberLiteral("1")
+    ASTNodesWithLoc.callExpression("print", [
+      ASTNodesWithLoc.callExpression("add", [
+        ASTNodesWithLoc.numberLiteral("1"),
+        ASTNodesWithLoc.numberLiteral("1")
       ])
     ])
   ]);

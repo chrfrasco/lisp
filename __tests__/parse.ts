@@ -1,4 +1,4 @@
-import parse, { ASTNodes } from "../src/parse";
+import parse, { ASTNodes, ASTNode } from "../src/parse";
 import { Tokens } from "../src/tokens";
 import { ImmutableLocation } from "../src/reader";
 
@@ -16,8 +16,22 @@ const TokWithLoc = new Proxy(
   }
 );
 
+// DUPLICATE(#2)
+const ASTNodesWithLoc = new Proxy(
+  {},
+  {
+    get(_: any, prop: string): (...args: any[]) => ASTNode {
+      if (prop in ASTNodes) {
+        return (...args: any[]) =>
+          ASTNodes[prop](...args, expect.any(ImmutableLocation));
+      }
+      throw new TypeError(`no builder with name ${prop}`);
+    }
+  }
+);
+
 test("handles empty list", () => {
-  expect(parse([])).toEqual(ASTNodes.program([]));
+  expect(parse([])).toEqual(ASTNodesWithLoc.program([]));
 });
 
 test("operators", () => {
@@ -28,10 +42,10 @@ test("operators", () => {
     TokWithLoc.number("1"),
     TokWithLoc.paren(")")
   ];
-  const output = ASTNodes.program([
-    ASTNodes.callExpression("+", [
-      ASTNodes.numberLiteral("1"),
-      ASTNodes.numberLiteral("1")
+  const output = ASTNodesWithLoc.program([
+    ASTNodesWithLoc.callExpression("+", [
+      ASTNodesWithLoc.numberLiteral("1"),
+      ASTNodesWithLoc.numberLiteral("1")
     ])
   ]);
   expect(parse(input)).toEqual(output);
@@ -45,10 +59,10 @@ test("identifiers", () => {
     TokWithLoc.number("1"),
     TokWithLoc.paren(")")
   ];
-  const output = ASTNodes.program([
-    ASTNodes.callExpression("add", [
-      ASTNodes.numberLiteral("1"),
-      ASTNodes.numberLiteral("1")
+  const output = ASTNodesWithLoc.program([
+    ASTNodesWithLoc.callExpression("add", [
+      ASTNodesWithLoc.numberLiteral("1"),
+      ASTNodesWithLoc.numberLiteral("1")
     ])
   ]);
   expect(parse(input)).toEqual(output);
@@ -61,8 +75,8 @@ test("string literals", () => {
     TokWithLoc.string("hello, world"),
     TokWithLoc.paren(")")
   ];
-  const output = ASTNodes.program([
-    ASTNodes.callExpression("print", [ASTNodes.stringLiteral("hello, world")])
+  const output = ASTNodesWithLoc.program([
+    ASTNodesWithLoc.callExpression("print", [ASTNodesWithLoc.stringLiteral("hello, world")])
   ]);
   expect(parse(input)).toEqual(output);
 });
@@ -75,8 +89,8 @@ test("variable assignment", () => {
     TokWithLoc.number("1"),
     TokWithLoc.paren(")")
   ];
-  const output = ASTNodes.program([
-    ASTNodes.variableAssignment("x", ASTNodes.numberLiteral("1"))
+  const output = ASTNodesWithLoc.program([
+    ASTNodesWithLoc.variableAssignment("x", ASTNodesWithLoc.numberLiteral("1"))
   ]);
   expect(parse(input)).toEqual(output);
 });
@@ -89,8 +103,8 @@ test("function declaration with no arguments", () => {
     TokWithLoc.number("1"),
     TokWithLoc.paren(")")
   ];
-  const output = ASTNodes.program([
-    ASTNodes.functionDeclaration("foo", [], ASTNodes.numberLiteral("1"))
+  const output = ASTNodesWithLoc.program([
+    ASTNodesWithLoc.functionDeclaration("foo", [], ASTNodesWithLoc.numberLiteral("1"))
   ]);
   expect(parse(input)).toEqual(output);
 });
@@ -104,8 +118,8 @@ test("function declaration with one argument", () => {
     TokWithLoc.number("1"),
     TokWithLoc.paren(")")
   ];
-  const output = ASTNodes.program([
-    ASTNodes.functionDeclaration("foo", ["x"], ASTNodes.numberLiteral("1"))
+  const output = ASTNodesWithLoc.program([
+    ASTNodesWithLoc.functionDeclaration("foo", ["x"], ASTNodesWithLoc.numberLiteral("1"))
   ]);
   expect(parse(input)).toEqual(output);
 });
@@ -120,8 +134,8 @@ test("function declaration with multiple arguments", () => {
     TokWithLoc.number("1"),
     TokWithLoc.paren(")")
   ];
-  const output = ASTNodes.program([
-    ASTNodes.functionDeclaration("foo", ["x", "y"], ASTNodes.numberLiteral("1"))
+  const output = ASTNodesWithLoc.program([
+    ASTNodesWithLoc.functionDeclaration("foo", ["x", "y"], ASTNodesWithLoc.numberLiteral("1"))
   ]);
   expect(parse(input)).toEqual(output);
 });
@@ -142,14 +156,14 @@ test("function declaration with complex body", () => {
     TokWithLoc.paren(")"),
     TokWithLoc.paren(")")
   ];
-  const output = ASTNodes.program([
-    ASTNodes.functionDeclaration(
+  const output = ASTNodesWithLoc.program([
+    ASTNodesWithLoc.functionDeclaration(
       "foo",
       ["x"],
-      ASTNodes.callExpression("print", [
-        ASTNodes.callExpression("+", [
-          ASTNodes.numberLiteral("1"),
-          ASTNodes.numberLiteral("1")
+      ASTNodesWithLoc.callExpression("print", [
+        ASTNodesWithLoc.callExpression("+", [
+          ASTNodesWithLoc.numberLiteral("1"),
+          ASTNodesWithLoc.numberLiteral("1")
         ])
       ])
     )
@@ -168,11 +182,11 @@ test("nested call expressions", () => {
     TokWithLoc.paren(")"),
     TokWithLoc.paren(")")
   ];
-  const output = ASTNodes.program([
-    ASTNodes.callExpression("print", [
-      ASTNodes.callExpression("+", [
-        ASTNodes.numberLiteral("1"),
-        ASTNodes.numberLiteral("1")
+  const output = ASTNodesWithLoc.program([
+    ASTNodesWithLoc.callExpression("print", [
+      ASTNodesWithLoc.callExpression("+", [
+        ASTNodesWithLoc.numberLiteral("1"),
+        ASTNodesWithLoc.numberLiteral("1")
       ])
     ])
   ]);
