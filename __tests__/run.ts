@@ -1,14 +1,15 @@
 import run from '../src/run';
-import * as constants from '../src/constants';
+import { ASTNode, ASTNodeKind } from '../src/parse';
+import { DEFAULT_GLOBALS } from '../src/constants';
 
 test("runs a full program", () => {
-  const program = {
-    type: constants.PROGRAM,
+  const program: ASTNode = {
+    type: ASTNodeKind.PROGRAM,
     body: [
       {
-        type: constants.CALL_EXPRESSION,
+        type: ASTNodeKind.CALL_EXPRESSION,
         name: "print",
-        params: [{ type: constants.STRING_LITERAL, value: "hello, world" }]
+        params: [{ type: ASTNodeKind.STRING_LITERAL, value: "hello, world" }]
       }
     ]
   }
@@ -16,13 +17,13 @@ test("runs a full program", () => {
 })
 
 test("globals can be mocked", () => {
-  const program = {
-    type: constants.CALL_EXPRESSION,
+  const program: ASTNode = {
+    type: ASTNodeKind.CALL_EXPRESSION,
     name: "print",
-    params: [{ type: constants.STRING_LITERAL, value: "hello, world" }]
+    params: [{ type: ASTNodeKind.STRING_LITERAL, value: "hello, world" }]
   }
   const print = jest.fn()
-  const mockedGlobals = Object.assign({}, constants.DEFAULT_GLOBALS, {
+  const mockedGlobals = Object.assign({}, DEFAULT_GLOBALS, {
     print
   })
   run(program, mockedGlobals)
@@ -31,80 +32,72 @@ test("globals can be mocked", () => {
 })
 
 test("adds two numbers", () => {
-  const program = {
-    type: constants.CALL_EXPRESSION,
+  const program: ASTNode = {
+    type: ASTNodeKind.CALL_EXPRESSION,
     name: "+",
     params: [
-      { type: constants.NUMBER_LITERAL, value: "1" },
-      { type: constants.NUMBER_LITERAL, value: "1" }
+      { type: ASTNodeKind.NUMBER_LITERAL, value: "1" },
+      { type: ASTNodeKind.NUMBER_LITERAL, value: "1" }
     ]
   }
   expect(run(program)).toEqual(2)
 })
 
 test("can assign variables", () => {
-  const program = {
-    type: constants.PROGRAM,
+  const program: ASTNode = {
+    type: ASTNodeKind.PROGRAM,
     body: [
       {
-        type: constants.VARIABLE_ASSIGNMENT,
+        type: ASTNodeKind.VARIABLE_ASSIGNMENT,
         name: "x",
-        value: { type: constants.NUMBER_LITERAL, value: "1" }
+        value: { type: ASTNodeKind.NUMBER_LITERAL, value: "1" }
       }
     ]
   }
-  const globals = Object.assign({}, constants.DEFAULT_GLOBALS)
+  const globals = Object.assign({}, DEFAULT_GLOBALS)
   run(program, globals)
   // TODO(christianscott): remove any cast
   expect((globals as any).x).toBe(1)
 })
 
-test("throws an error when given a program containing invalid tokens", () => {
-  const program = {
-    type: "__GARBAGE__",
-    value: null
-  }
-  expect(() => run(program)).toThrow(TypeError)
-})
-
 test("function declaration", () => {
-  const program = {
-    type: constants.PROGRAM,
+  const program: ASTNode = {
+    type: ASTNodeKind.PROGRAM,
     body: [
       {
-        type: constants.FUNCTION_DECLARATION,
+        type: ASTNodeKind.FUNCTION_DECLARATION,
         name: "add",
         params: ["x", "y"],
         body: {
           name: "+",
-          type: constants.CALL_EXPRESSION,
+          type: ASTNodeKind.CALL_EXPRESSION,
           params: [
             {
               value: "x",
-              type: constants.IDENTIFIER
+              type: ASTNodeKind.IDENTIFIER
             },
             {
               value: "y",
-              type: constants.IDENTIFIER
+              type: ASTNodeKind.IDENTIFIER
             }
           ]
         }
       },
       {
-        type: constants.CALL_EXPRESSION,
+        type: ASTNodeKind.CALL_EXPRESSION,
         name: "print",
         params: [
           {
             name: "add",
-            type: constants.CALL_EXPRESSION,
+            type: ASTNodeKind.CALL_EXPRESSION,
             params: [
               {
                 value: "1",
-                type: constants.NUMBER_LITERAL
+                type: ASTNodeKind.NUMBER_LITERAL
               },
               {
                 value: "1",
-                type: constants.NUMBER_LITERAL
+                type: ASTNodeKind.NUMBER_LITERAL
               }
             ]
           }
@@ -113,7 +106,7 @@ test("function declaration", () => {
     ]
   }
   const print = jest.fn()
-  const mockedGlobals = Object.assign({}, constants.DEFAULT_GLOBALS, {
+  const mockedGlobals = Object.assign({}, DEFAULT_GLOBALS, {
     print
   })
   run(program, mockedGlobals)

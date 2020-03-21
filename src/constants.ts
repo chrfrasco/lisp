@@ -16,12 +16,7 @@ export const CALL_EXPRESSION = ASTNodeKind.CALL_EXPRESSION;
 export const VARIABLE_ASSIGNMENT = ASTNodeKind.VARIABLE_ASSIGNMENT;
 export const FUNCTION_DECLARATION = ASTNodeKind.FUNCTION_DECLARATION;
 
-export const KEYWORDS = {
-  def: VARIABLE_ASSIGNMENT,
-  fn: FUNCTION_DECLARATION
-};
-
-export const DEFAULT_GLOBALS = {
+export const DEFAULT_GLOBALS: { [key: string]: any } = {
   print: console.log.bind(console),
   "+": (a, b) => a + b,
   "*": (a, b) => a * b,

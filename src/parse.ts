@@ -1,5 +1,5 @@
 import { Token, TokenKind } from "./lexer";
-import { UnreachableError } from "./unreachable";
+import { UnreachableError, Preconditions } from "./preconditions";
 
 export enum ASTNodeKind {
   PROGRAM = "PROGRAM",
@@ -11,15 +11,17 @@ export enum ASTNodeKind {
   IDENTIFIER = "IDENTIFIER"
 }
 
+export type FunctionNode = {
+  type: ASTNodeKind.FUNCTION_DECLARATION;
+  name: string;
+  params: readonly string[];
+  body: ASTNode;
+};
+
 export type ASTNode =
+  | FunctionNode
   | { type: ASTNodeKind.PROGRAM; body: readonly ASTNode[] }
   | { type: ASTNodeKind.VARIABLE_ASSIGNMENT; name: string; value: ASTNode }
-  | {
-      type: ASTNodeKind.FUNCTION_DECLARATION;
-      name: string;
-      params: readonly string[];
-      body: ASTNode;
-    }
   | {
       type: ASTNodeKind.CALL_EXPRESSION;
       name: string;
@@ -94,7 +96,7 @@ export default function parse(tokens: readonly Token[]) {
 
   function handleVariableAssignment(): ASTNode {
     let token = tokens[++current];
-    assert(
+    Preconditions.checkState(
       token.type === TokenKind.IDENTIFIER,
       `expected IDENTIFIER, got ${token.type}: ${token.value}`
     );
@@ -112,7 +114,10 @@ export default function parse(tokens: readonly Token[]) {
   function handleFunctionDeclaration(): ASTNode {
     let token = tokens[++current];
 
-    assert(token.type === TokenKind.IDENTIFIER, "expected a name");
+    Preconditions.checkState(
+      token.type === TokenKind.IDENTIFIER,
+      "expected a name"
+    );
     const name = token.value;
 
     let params = [];
@@ -161,14 +166,4 @@ export default function parse(tokens: readonly Token[]) {
   }
 
   return { type: ASTNodeKind.PROGRAM, body };
-}
-
-function assert(
-  cond: boolean,
-  message: string,
-  errConstructor = TypeError
-): asserts cond {
-  if (!cond) {
-    throw new errConstructor(message);
-  }
 }
