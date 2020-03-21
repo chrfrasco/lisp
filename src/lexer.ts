@@ -1,4 +1,4 @@
-const {
+import {
   NUMBER,
   STRING,
   PAREN,
@@ -7,9 +7,9 @@ const {
   KEYWORD,
   KEYWORDS,
   PARAMETER
-} = require("./constants");
+} from "./constants";
 
-module.exports = input => {
+export default function lexer(input) {
   const tokens = [];
   let current = 0;
 
@@ -83,7 +83,7 @@ module.exports = input => {
   }
 
   return tokens;
-};
+}
 
 function isWhitespace(s) {
   return /\s/.test(s);

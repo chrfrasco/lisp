@@ -1,4 +1,4 @@
-const {
+import {
   NUMBER,
   STRING,
   PAREN,
@@ -12,9 +12,9 @@ const {
   KEYWORDS,
   PARAMETER,
   FUNCTION_DECLARATION
-} = require("../src/constants");
+} from "../src/constants";
 
-module.exports = tokens => {
+export default function parse(tokens) {
   let current = 0;
 
   function walk() {
@@ -147,7 +147,7 @@ module.exports = tokens => {
   }
 
   return ast;
-};
+}
 
 function assert(assertion, message, errConstructor = TypeError) {
   if (!assertion) {

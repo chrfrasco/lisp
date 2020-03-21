@@ -1,49 +1,28 @@
-const NUMBER = "NUMBER";
-const STRING = "STRING";
-const PAREN = "PAREN";
-const OPERATOR = "OPERATOR";
-const IDENTIFIER = "IDENTIFIER";
-const KEYWORD = "KEYWORD";
-const PARAMETER = "PARAMETER";
+export const NUMBER = "NUMBER";
+export const STRING = "STRING";
+export const PAREN = "PAREN";
+export const OPERATOR = "OPERATOR";
+export const IDENTIFIER = "IDENTIFIER";
+export const KEYWORD = "KEYWORD";
+export const PARAMETER = "PARAMETER";
 
-const PROGRAM = "PROGRAM";
-const NUMBER_LITERAL = "NUMBER_LITERAL";
-const STRING_LITERAL = "STRING_LITERAL";
-const CALL_EXPRESSION = "CALL_EXPRESSION";
-const VARIABLE_ASSIGNMENT = "VARIABLE_ASSIGNMENT";
-const FUNCTION_DECLARATION = "FUNCTION_DECLARATION";
+export const PROGRAM = "PROGRAM";
+export const NUMBER_LITERAL = "NUMBER_LITERAL";
+export const STRING_LITERAL = "STRING_LITERAL";
+export const CALL_EXPRESSION = "CALL_EXPRESSION";
+export const VARIABLE_ASSIGNMENT = "VARIABLE_ASSIGNMENT";
+export const FUNCTION_DECLARATION = "FUNCTION_DECLARATION";
 
-const KEYWORDS = {
+export const KEYWORDS = {
   def: VARIABLE_ASSIGNMENT,
   fn: FUNCTION_DECLARATION
 };
 
-const DEFAULT_GLOBALS = {
+export const DEFAULT_GLOBALS = {
   print: console.log.bind(console),
   "+": (a, b) => a + b,
   "*": (a, b) => a * b,
   "-": (a, b) => a - b,
   "/": (a, b) => a / b,
   pow: (a, b) => a ** b
-};
-
-module.exports = {
-  NUMBER,
-  STRING,
-  PAREN,
-  OPERATOR,
-  IDENTIFIER,
-  KEYWORD,
-  PARAMETER,
-
-  KEYWORDS,
-
-  PROGRAM,
-  NUMBER_LITERAL,
-  STRING_LITERAL,
-  CALL_EXPRESSION,
-  VARIABLE_ASSIGNMENT,
-  FUNCTION_DECLARATION,
-
-  DEFAULT_GLOBALS
 };

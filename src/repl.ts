@@ -1,5 +1,5 @@
-const readline = require("readline");
-const lisp = require("./index");
+import * as readline from "readline";
+import lisp from "./index";
 
 const lineReader = readline.createInterface({
   input: process.stdin,
