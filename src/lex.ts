@@ -6,6 +6,7 @@ import { ErrorAtLocation } from "./error_at_location";
 export default function lex(source: string): Token[] {
   const tokens: Token[] = [];
   const reader = new Reader(source);
+  let unclosedParens = 0;
 
   while (reader.hasMoreChars()) {
     let char = reader.peek();
@@ -40,6 +41,7 @@ export default function lex(source: string): Token[] {
     }
 
     if (char === "(" || char === ")") {
+      unclosedParens += char === '(' ? 1 : -1;
       const location = reader.currentLocation();
       tokens.push(Tokens.paren(char, location));
       reader.next();
@@ -47,11 +49,15 @@ export default function lex(source: string): Token[] {
     }
 
     if (char === "[") {
-      while (reader.peek() !== "]") {
+      while (reader.hasMoreChars() && reader.peek() !== "]") {
         reader.next();
         const location = reader.currentLocation();
         const value = reader.takeCharsWhile(s => !isWhitespace(s) && s !== "]");
         value && tokens.push(Tokens.parameter(value, location));
+      }
+
+      if (reader.peek() !== ']') {
+        throw new UnexpectedEndOfInputError(reader.currentLocation());
       }
 
       reader.next();
@@ -72,11 +78,19 @@ export default function lex(source: string): Token[] {
       const value = reader.takeCharsWhile(s => s !== quoteKind);
       tokens.push(Tokens.string(value, location));
 
+      if (reader.peek() !== quoteKind) {
+        throw new UnexpectedEndOfInputError(reader.currentLocation());
+      }
+
       reader.next(); // skip closing quote
       continue;
     }
 
     throw new LexError(char, reader.currentLocation());
+  }
+
+  if (unclosedParens > 0) {
+    throw new UnexpectedEndOfInputError(reader.currentLocation());
   }
 
   return tokens;
@@ -85,6 +99,12 @@ export default function lex(source: string): Token[] {
 export class LexError extends ErrorAtLocation {
   constructor(char: string, location: Location) {
     super(`unexpected char ${char}`, location);
+  }
+}
+
+export class UnexpectedEndOfInputError extends ErrorAtLocation {
+  constructor(location: Location) {
+    super('unexpected end of input', location);
   }
 }
 
