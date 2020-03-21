@@ -1,10 +1,6 @@
 const lisp = require("../src")
 const constants = require("../src/constants")
 
-test("exports a function", () => {
-  expect(typeof lisp).toEqual("function")
-})
-
 test("runs correctly", () => {
   const print = jest.fn()
   const mockedGlobals = Object.assign({}, constants.DEFAULT_GLOBALS, {

@@ -15,10 +15,6 @@ const {
   PARAMETER
 } = require("../src/constants")
 
-test("exports a function", () => {
-  expect(typeof parse).toEqual("function")
-})
-
 test("handles empty list", () => {
   expect(parse([])).toEqual({
     type: PROGRAM,

@@ -9,10 +9,6 @@ const {
   PARAMETER
 } = require("../src/constants")
 
-test("exports a function", () => {
-  expect(typeof lexer).toEqual("function")
-})
-
 test("transforms string into an array of tokens", () => {
   const input = `(+ 1 10)`
   const output = [

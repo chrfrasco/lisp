@@ -1,10 +1,6 @@
 const run = require("../src/run")
 const constants = require("../src/constants")
 
-test("exports a function", () => {
-  expect(typeof run).toBe("function")
-})
-
 test("runs a full program", () => {
   const program = {
     type: constants.PROGRAM,
