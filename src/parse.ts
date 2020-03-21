@@ -19,13 +19,13 @@ export enum ASTNodeKind {
   IDENTIFIER = "IDENTIFIER"
 }
 
-export type ASTNode = { location: Location }
-  & ({
-    type: ASTNodeKind.FUNCTION_DECLARATION;
-    name: string;
-    params: readonly string[];
-    body: ASTNode;
-  }
+export type ASTNode = { location: Location } & (
+  | {
+      type: ASTNodeKind.FUNCTION_DECLARATION;
+      name: string;
+      params: readonly string[];
+      body: ASTNode;
+    }
   | { type: ASTNodeKind.PROGRAM; body: readonly ASTNode[] }
   | { type: ASTNodeKind.VARIABLE_ASSIGNMENT; name: string; value: ASTNode }
   | {
@@ -34,23 +34,43 @@ export type ASTNode = { location: Location }
       params: readonly ASTNode[];
     }
   | {
-      type:
-        | ASTNodeKind.STRING_LITERAL
-        | ASTNodeKind.NUMBER_LITERAL
-        | ASTNodeKind.IDENTIFIER;
+      type: ASTNodeKind.STRING_LITERAL | ASTNodeKind.NUMBER_LITERAL;
       value: string;
-    });
+    }
+  | {
+      type: ASTNodeKind.IDENTIFIER;
+      value: string;
+    }
+);
 
-export type FunctionNode = Extract<ASTNode, { type: ASTNodeKind.FUNCTION_DECLARATION }>;
+export type FunctionDeclarationNode = Extract<
+  ASTNode,
+  { type: ASTNodeKind.FUNCTION_DECLARATION }
+>;
+
+export type CallExpressionNode = Extract<
+  ASTNode,
+  { type: ASTNodeKind.CALL_EXPRESSION }
+>;
+
+export type IdentifierNode = Extract<ASTNode, { type: ASTNodeKind.IDENTIFIER }>;
 
 export const ASTNodes = {
   program(body: readonly ASTNode[], location: Location): ASTNode {
     return { type: ASTNodeKind.PROGRAM, location, body };
   },
-  variableAssignment(name: string, value: ASTNode, location: Location): ASTNode {
+  variableAssignment(
+    name: string,
+    value: ASTNode,
+    location: Location
+  ): ASTNode {
     return { type: ASTNodeKind.VARIABLE_ASSIGNMENT, location, name, value };
   },
-  callExpression(name: string, params: readonly ASTNode[], location: Location): ASTNode {
+  callExpression(
+    name: string,
+    params: readonly ASTNode[],
+    location: Location
+  ): ASTNode {
     return { type: ASTNodeKind.CALL_EXPRESSION, location, name, params };
   },
   stringLiteral(value: string, location: Location): ASTNode {
@@ -65,9 +85,16 @@ export const ASTNodes = {
   functionDeclaration(
     name: string,
     params: readonly string[],
-    body: ASTNode, location: Location
-  ): FunctionNode {
-    return { type: ASTNodeKind.FUNCTION_DECLARATION, location, name, params, body };
+    body: ASTNode,
+    location: Location
+  ): FunctionDeclarationNode {
+    return {
+      type: ASTNodeKind.FUNCTION_DECLARATION,
+      location,
+      name,
+      params,
+      body
+    };
   }
 };
 
@@ -162,7 +189,12 @@ export default function parse(tokens: readonly Token[]) {
       token = tokens[++current];
     }
 
-    const node = ASTNodes.functionDeclaration(name, params, walk(), token.location);
+    const node = ASTNodes.functionDeclaration(
+      name,
+      params,
+      walk(),
+      token.location
+    );
 
     current++;
     return node;
@@ -173,6 +205,7 @@ export default function parse(tokens: readonly Token[]) {
   ): ASTNode {
     const params: ASTNode[] = [];
     const name = callingToken.value;
+    const location = callingToken.location;
 
     let token = tokens[++current];
     while (
@@ -184,7 +217,7 @@ export default function parse(tokens: readonly Token[]) {
     }
 
     current++;
-    return ASTNodes.callExpression(name, params, token.location);
+    return ASTNodes.callExpression(name, params, location);
   }
 
   const body: ASTNode[] = [];

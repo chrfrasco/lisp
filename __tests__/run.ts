@@ -19,7 +19,9 @@ const ASTNodesWithLoc = new Proxy(
 
 test("runs a full program", () => {
   const program = ASTNodesWithLoc.program([
-    ASTNodesWithLoc.callExpression("print", [ASTNodesWithLoc.stringLiteral("hello, world")])
+    ASTNodesWithLoc.callExpression("print", [
+      ASTNodesWithLoc.stringLiteral("hello, world")
+    ])
   ]);
   const print = jest.fn();
   const scope = Scope.forTesting(print);

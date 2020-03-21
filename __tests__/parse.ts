@@ -76,7 +76,9 @@ test("string literals", () => {
     TokWithLoc.paren(")")
   ];
   const output = ASTNodesWithLoc.program([
-    ASTNodesWithLoc.callExpression("print", [ASTNodesWithLoc.stringLiteral("hello, world")])
+    ASTNodesWithLoc.callExpression("print", [
+      ASTNodesWithLoc.stringLiteral("hello, world")
+    ])
   ]);
   expect(parse(input)).toEqual(output);
 });
@@ -104,7 +106,11 @@ test("function declaration with no arguments", () => {
     TokWithLoc.paren(")")
   ];
   const output = ASTNodesWithLoc.program([
-    ASTNodesWithLoc.functionDeclaration("foo", [], ASTNodesWithLoc.numberLiteral("1"))
+    ASTNodesWithLoc.functionDeclaration(
+      "foo",
+      [],
+      ASTNodesWithLoc.numberLiteral("1")
+    )
   ]);
   expect(parse(input)).toEqual(output);
 });
@@ -119,7 +125,11 @@ test("function declaration with one argument", () => {
     TokWithLoc.paren(")")
   ];
   const output = ASTNodesWithLoc.program([
-    ASTNodesWithLoc.functionDeclaration("foo", ["x"], ASTNodesWithLoc.numberLiteral("1"))
+    ASTNodesWithLoc.functionDeclaration(
+      "foo",
+      ["x"],
+      ASTNodesWithLoc.numberLiteral("1")
+    )
   ]);
   expect(parse(input)).toEqual(output);
 });
@@ -135,7 +145,11 @@ test("function declaration with multiple arguments", () => {
     TokWithLoc.paren(")")
   ];
   const output = ASTNodesWithLoc.program([
-    ASTNodesWithLoc.functionDeclaration("foo", ["x", "y"], ASTNodesWithLoc.numberLiteral("1"))
+    ASTNodesWithLoc.functionDeclaration(
+      "foo",
+      ["x", "y"],
+      ASTNodesWithLoc.numberLiteral("1")
+    )
   ]);
   expect(parse(input)).toEqual(output);
 });

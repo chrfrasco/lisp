@@ -1,4 +1,4 @@
-import { Preconditions, UnreachableError } from "./preconditions";
+import { UnreachableError } from "./preconditions";
 
 export enum RuntimeValueKind {
   STRING = "STRING",
@@ -76,7 +76,7 @@ export class Scope {
       })],
       ["concat", RuntimeValueBuilders.function('concat', (...args) => {
         for (const arg of args) {
-          Preconditions.checkState(
+          MismatchedTypesError.assertTypes(
             arg.kind === RuntimeValueKind.STRING,
             'concat expects all args to be strings',
           );
@@ -100,17 +100,16 @@ export class Scope {
     return Scope.prelude().with([["print", printValue]]);
   }
 
+  names(): string[] {
+    return [...this.variables.keys()];
+  }
+
   with(variables: [string, RuntimeValue][]): Scope {
     return new Scope([...this.variables.entries(), ...variables]);
   }
 
-  get(name: string): RuntimeValue {
-    if (!this.variables.has(name)) {
-      throw new TypeError(`${name} is not defined`);
-    }
-    const value = this.variables.get(name);
-    Preconditions.checkState(value != null, "expected a value");
-    return value;
+  get(name: string): RuntimeValue | undefined {
+    return this.variables.get(name);
   }
 
   assign(name: string, value: RuntimeValue) {
@@ -129,7 +128,7 @@ function makeNumberOperator(
   return RuntimeValueBuilders.function(
     name,
     (a: RuntimeValue, b: RuntimeValue) => {
-      Preconditions.checkState(
+      MismatchedTypesError.assertTypes(
         a.kind === RuntimeValueKind.NUMBER &&
           b.kind === RuntimeValueKind.NUMBER,
         `${name} expects two numbers`
@@ -137,4 +136,16 @@ function makeNumberOperator(
       return RuntimeValueBuilders.number(op(a.value, b.value));
     }
   );
+}
+
+export class MismatchedTypesError extends Error {
+  constructor(message: string) {
+    super(message);
+  }
+
+  static assertTypes(cond: boolean, message: string): asserts cond {
+    if (!cond) {
+      throw new MismatchedTypesError(message);
+    }
+  }
 }

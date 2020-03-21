@@ -7,7 +7,12 @@ export class ErrorAtLocation extends Error {
 
   printWithSource(source: string): string {
     const line = source.split("\n")[this.location.line];
-    return line + `\n${repeat(" ", this.location.charInLine)}^ ${this.message}`;
+    return (
+      line +
+      `\n${repeat(" ", this.location.charInLine)}^ ${this.constructor.name}: ${
+        this.message
+      }`
+    );
   }
 }
 

@@ -1,7 +1,9 @@
 import {
   ASTNode,
   ASTNodeKind,
-  FunctionNode as FunctionDeclarationNode
+  FunctionDeclarationNode,
+  CallExpressionNode,
+  IdentifierNode
 } from "./parse";
 import { UnreachableError } from "./preconditions";
 import {
@@ -9,8 +11,10 @@ import {
   RuntimeValueKind,
   RuntimeValueBuilders,
   RuntimeValue,
-  RuntimeFunctionValue
+  RuntimeFunctionValue,
+  MismatchedTypesError
 } from "./scope";
+import { ErrorAtLocation } from "./error_at_location";
 
 export default function run(
   node: ASTNode,
@@ -37,15 +41,31 @@ export default function run(
       const params = node.params.map(param => run(param, scope));
       const fn = scope.get(node.name);
 
-      if (fn.kind !== RuntimeValueKind.FUNCTION) {
-        throw new TypeError(`value of type ${fn.kind} is not callable`);
+      if (fn == null) {
+        throw new ReferenceError(node);
       }
 
-      return fn.value.apply(null, params);
+      if (fn.kind !== RuntimeValueKind.FUNCTION) {
+        throw new NotCallableError(fn, node);
+      }
+
+      try {
+        return fn.value.apply(null, params);
+      } catch (error) {
+        if (error instanceof MismatchedTypesError) {
+          throw new RuntimeTypeError(error.message, node);
+        } else {
+          throw error;
+        }
+      }
     }
 
     case ASTNodeKind.IDENTIFIER: {
-      return scope.get(node.value);
+      const value = scope.get(node.value);
+      if (value == null) {
+        throw new ReferenceError(node);
+      }
+      return value;
     }
 
     case ASTNodeKind.NUMBER_LITERAL: {
@@ -58,6 +78,26 @@ export default function run(
 
     default:
       throw new UnreachableError(node);
+  }
+}
+
+class ReferenceError extends ErrorAtLocation {
+  constructor(node: CallExpressionNode | IdentifierNode) {
+    const identifier =
+      node.type === ASTNodeKind.CALL_EXPRESSION ? node.name : node.value;
+    super(`${identifier} is not defined`, node.location);
+  }
+}
+
+class NotCallableError extends ErrorAtLocation {
+  constructor(value: RuntimeValue, callExpr: CallExpressionNode) {
+    super(`value of type ${value.kind} is not callable`, callExpr.location);
+  }
+}
+
+class RuntimeTypeError extends ErrorAtLocation {
+  constructor(message: string, callExpr: CallExpressionNode) {
+    super(message, callExpr.location);
   }
 }
 
