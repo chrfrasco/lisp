@@ -1,11 +1,11 @@
 import lexer from "./lexer";
 import parser from "./parse";
 import run from "./run";
-import * as constants from "./constants";
+import { Scope } from "./scope";
 
 export default function lisp(
   input: string,
-  globals = constants.DEFAULT_GLOBALS
+  globals = Scope.prelude(),
 ) {
   return pipe(lexer, parser, ast => run(ast, globals))(input);
 }
