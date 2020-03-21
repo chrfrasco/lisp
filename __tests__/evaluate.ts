@@ -35,6 +35,9 @@ test("function calls with no arguments", () => {
 test("function calls with arguments", () => {
   const print = jest.fn();
   const scope = Scope.forTesting(print);
-  evaluate(`(fn greet [name] (concat "hello " name))\n(print (greet "christian"))`, scope);
+  evaluate(
+    `(fn greet [name] (concat "hello " name))\n(print (greet "christian"))`,
+    scope
+  );
   expect(print).toHaveBeenCalledWith("hello christian");
 });

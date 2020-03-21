@@ -14,15 +14,16 @@ export enum TokenKind {
   NEWLINE = "NEWLINE"
 }
 
-export type Token = { location: Location }
-  & ({ type: TokenKind.NUMBER, value: string }
-  | { type: TokenKind.STRING, value: string }
-  | { type: TokenKind.PAREN, value: string }
-  | { type: TokenKind.IDENTIFIER, value: string }
-  | { type: TokenKind.PARAMETER, value: string }
-  | { type: TokenKind.KEYWORD, value: Keyword }
-  | { type: TokenKind.OPERATOR, value: OperatorChar }
-  | { type: TokenKind.NEWLINE });
+export type Token = { location: Location } & (
+  | { type: TokenKind.NUMBER; value: string }
+  | { type: TokenKind.STRING; value: string }
+  | { type: TokenKind.PAREN; value: string }
+  | { type: TokenKind.IDENTIFIER; value: string }
+  | { type: TokenKind.PARAMETER; value: string }
+  | { type: TokenKind.KEYWORD; value: Keyword }
+  | { type: TokenKind.OPERATOR; value: OperatorChar }
+  | { type: TokenKind.NEWLINE }
+);
 
 export type IdentifierToken = Extract<Token, { type: TokenKind.IDENTIFIER }>;
 

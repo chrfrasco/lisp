@@ -1,9 +1,7 @@
 export class Reader {
   private readonly location = new MutableLocation();
 
-  constructor(
-    private readonly source: string,
-  ) {}
+  constructor(private readonly source: string) {}
 
   currentLocation(): Location {
     return this.location.snapshot();
@@ -14,7 +12,7 @@ export class Reader {
   }
 
   next(): string {
-    if (this.peek() === '\n') {
+    if (this.peek() === "\n") {
       this.location.nextLine();
       return this.peek();
     }
@@ -35,7 +33,6 @@ export class Reader {
     }
     return value;
   }
-
 }
 
 export interface Location {
@@ -70,7 +67,7 @@ export class MutableLocation implements Location {
 
   nextChar() {
     this.currentOffset++;
-    this.currentCharInLine++
+    this.currentCharInLine++;
   }
 
   nextLine() {

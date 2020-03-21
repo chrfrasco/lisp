@@ -10,7 +10,7 @@ export default function lexer(source: string): Token[] {
   while (reader.hasMoreChars()) {
     let char = reader.peek();
 
-    if (char === '\n') {
+    if (char === "\n") {
       tokens.push(Tokens.newline(reader.currentLocation()));
       reader.next();
       continue;
@@ -47,7 +47,7 @@ export default function lexer(source: string): Token[] {
     }
 
     if (char === "[") {
-      while (reader.peek() !== ']') {
+      while (reader.peek() !== "]") {
         reader.next();
         const location = reader.currentLocation();
         const value = reader.takeCharsWhile(s => !isWhitespace(s) && s !== "]");

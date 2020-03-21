@@ -1,4 +1,11 @@
-import { Token, TokenKind, KeywordToken, IdentifierToken, OperatorChar, OperatorToken } from "./tokens";
+import {
+  Token,
+  TokenKind,
+  KeywordToken,
+  IdentifierToken,
+  OperatorChar,
+  OperatorToken
+} from "./tokens";
 import { UnreachableError, Preconditions } from "./preconditions";
 import { ErrorAtLocation } from "./error_at_location";
 
@@ -96,7 +103,10 @@ export default function parse(tokens: readonly Token[]) {
         return handleKeyword(token);
       }
 
-      if (token.type === TokenKind.IDENTIFIER || token.type === TokenKind.OPERATOR) {
+      if (
+        token.type === TokenKind.IDENTIFIER ||
+        token.type === TokenKind.OPERATOR
+      ) {
         return handleCallExpression(token);
       }
 
@@ -158,7 +168,9 @@ export default function parse(tokens: readonly Token[]) {
     return node;
   }
 
-  function handleCallExpression(callingToken: IdentifierToken | OperatorToken): ASTNode {
+  function handleCallExpression(
+    callingToken: IdentifierToken | OperatorToken
+  ): ASTNode {
     const params: ASTNode[] = [];
     const name = callingToken.value;
 

@@ -2,14 +2,18 @@ import parse, { ASTNodes } from "../src/parse";
 import { Tokens } from "../src/tokens";
 import { ImmutableLocation } from "../src/reader";
 
-const TokWithLoc = new Proxy({}, {
-  get(_: any, prop: string) {
-    if (prop in Tokens) {
-      return (value: any) => Tokens[prop](value, expect.any(ImmutableLocation));
+const TokWithLoc = new Proxy(
+  {},
+  {
+    get(_: any, prop: string) {
+      if (prop in Tokens) {
+        return (value: any) =>
+          Tokens[prop](value, expect.any(ImmutableLocation));
+      }
+      throw new TypeError(`no builder with name ${prop}`);
     }
-    throw new TypeError(`no builder with name ${prop}`);
-  },
-})
+  }
+);
 
 test("handles empty list", () => {
   expect(parse([])).toEqual(ASTNodes.program([]));
