@@ -1,5 +1,5 @@
-const lexer = require("../src/lexer")
-const {
+import lexer from '../src/lexer';
+import {
   NUMBER,
   STRING,
   PAREN,
@@ -7,7 +7,7 @@ const {
   IDENTIFIER,
   KEYWORD,
   PARAMETER
-} = require("../src/constants")
+} from '../src/constants';
 
 test("transforms string into an array of tokens", () => {
   const input = `(+ 1 10)`

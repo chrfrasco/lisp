@@ -1,5 +1,5 @@
-const lisp = require("../src")
-const constants = require("../src/constants")
+import lisp from "../src"
+import * as constants from "../src/constants"
 
 test("runs correctly", () => {
   const print = jest.fn()

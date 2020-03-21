@@ -1,5 +1,5 @@
-const run = require("../src/run")
-const constants = require("../src/constants")
+import run from '../src/run';
+import * as constants from '../src/constants';
 
 test("runs a full program", () => {
   const program = {
@@ -53,9 +53,10 @@ test("can assign variables", () => {
       }
     ]
   }
-  const mockedGlobals = Object.assign({}, constants.DEFAULT_GLOBALS)
-  run(program, mockedGlobals)
-  expect(mockedGlobals.x).toBe(1)
+  const globals = Object.assign({}, constants.DEFAULT_GLOBALS)
+  run(program, globals)
+  // TODO(christianscott): remove any cast
+  expect((globals as any).x).toBe(1)
 })
 
 test("throws an error when given a program containing invalid tokens", () => {

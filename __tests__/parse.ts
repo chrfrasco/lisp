@@ -1,5 +1,5 @@
-const parse = require("../src/parse")
-const {
+import parse from '../src/parse';
+import {
   PROGRAM,
   CALL_EXPRESSION,
   NUMBER_LITERAL,
@@ -13,7 +13,7 @@ const {
   STRING,
   KEYWORD,
   PARAMETER
-} = require("../src/constants")
+} from '../src/constants';
 
 test("handles empty list", () => {
   expect(parse([])).toEqual({
