@@ -31,7 +31,7 @@ export type OperatorToken = Extract<Token, { type: TokenKind.OPERATOR }>;
 
 export type KeywordToken = Extract<Token, { type: TokenKind.KEYWORD }>;
 
-export const Tokens = {
+export const TokenBuilders = {
   paren(value: string, location: Location): Token {
     return { type: TokenKind.PAREN, location, value };
   },

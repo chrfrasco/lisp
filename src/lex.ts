@@ -1,6 +1,6 @@
 import { isKeyword } from "./keywords";
 import { Reader, Location } from "./reader";
-import { Token, Tokens, OperatorChar } from "./tokens";
+import { Token, TokenBuilders, OperatorChar } from "./tokens";
 import { ErrorAtLocation } from "./error_at_location";
 
 export default function lex(source: string): Token[] {
@@ -12,7 +12,7 @@ export default function lex(source: string): Token[] {
     let char = reader.peek();
 
     if (char === "\n") {
-      tokens.push(Tokens.newline(reader.currentLocation()));
+      tokens.push(TokenBuilders.newline(reader.currentLocation()));
       reader.next();
       continue;
     }
@@ -25,7 +25,7 @@ export default function lex(source: string): Token[] {
     if (isNumeric(char)) {
       const location = reader.currentLocation();
       const value = reader.takeCharsWhile(isNumeric);
-      tokens.push(Tokens.number(value, location));
+      tokens.push(TokenBuilders.number(value, location));
       continue;
     }
 
@@ -33,9 +33,9 @@ export default function lex(source: string): Token[] {
       const location = reader.currentLocation();
       const value = reader.takeCharsWhile(isAlphaNumeric);
       if (isKeyword(value)) {
-        tokens.push(Tokens.keyword(value, location));
+        tokens.push(TokenBuilders.keyword(value, location));
       } else {
-        tokens.push(Tokens.identifier(value, location));
+        tokens.push(TokenBuilders.identifier(value, location));
       }
       continue;
     }
@@ -43,7 +43,7 @@ export default function lex(source: string): Token[] {
     if (char === "(" || char === ")") {
       unclosedParens += char === '(' ? 1 : -1;
       const location = reader.currentLocation();
-      tokens.push(Tokens.paren(char, location));
+      tokens.push(TokenBuilders.paren(char, location));
       reader.next();
       continue;
     }
@@ -53,7 +53,7 @@ export default function lex(source: string): Token[] {
         reader.next();
         const location = reader.currentLocation();
         const value = reader.takeCharsWhile(s => !isWhitespace(s) && s !== "]");
-        value && tokens.push(Tokens.parameter(value, location));
+        value && tokens.push(TokenBuilders.parameter(value, location));
       }
 
       if (reader.peek() !== ']') {
@@ -65,7 +65,7 @@ export default function lex(source: string): Token[] {
     }
 
     if (isOperator(char)) {
-      tokens.push(Tokens.operator(char, reader.currentLocation()));
+      tokens.push(TokenBuilders.operator(char, reader.currentLocation()));
       reader.next();
       continue;
     }
@@ -76,7 +76,7 @@ export default function lex(source: string): Token[] {
       reader.next(); // skip open quote
 
       const value = reader.takeCharsWhile(s => s !== quoteKind);
-      tokens.push(Tokens.string(value, location));
+      tokens.push(TokenBuilders.string(value, location));
 
       if (reader.peek() !== quoteKind) {
         throw new UnexpectedEndOfInputError(reader.currentLocation());

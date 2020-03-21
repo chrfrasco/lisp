@@ -55,7 +55,7 @@ export type CallExpressionNode = Extract<
 
 export type IdentifierNode = Extract<ASTNode, { type: ASTNodeKind.IDENTIFIER }>;
 
-export const ASTNodes = {
+export const ASTNodeBuilders = {
   program(body: readonly ASTNode[], location: Location): ASTNode {
     return { type: ASTNodeKind.PROGRAM, location, body };
   },
@@ -115,12 +115,12 @@ export default function parse(tokens: readonly Token[]) {
 
     if (token.type === TokenKind.NUMBER) {
       current++;
-      return ASTNodes.numberLiteral(token.value, token.location);
+      return ASTNodeBuilders.numberLiteral(token.value, token.location);
     }
 
     if (token.type === TokenKind.STRING) {
       current++;
-      return ASTNodes.stringLiteral(token.value, token.location);
+      return ASTNodeBuilders.stringLiteral(token.value, token.location);
     }
 
     if (token.type === TokenKind.PAREN && token.value === "(") {
@@ -142,7 +142,7 @@ export default function parse(tokens: readonly Token[]) {
 
     if (token.type === TokenKind.IDENTIFIER) {
       current++;
-      return ASTNodes.identifier(token.value, token.location);
+      return ASTNodeBuilders.identifier(token.value, token.location);
     }
 
     throw new ParseError(token);
@@ -168,7 +168,7 @@ export default function parse(tokens: readonly Token[]) {
     }
     const name = token.value;
     current++;
-    const node = ASTNodes.variableAssignment(name, walk(), token.location);
+    const node = ASTNodeBuilders.variableAssignment(name, walk(), token.location);
     current++;
     return node;
   }
@@ -187,7 +187,7 @@ export default function parse(tokens: readonly Token[]) {
       token = tokens[++current];
     }
 
-    const node = ASTNodes.functionDeclaration(
+    const node = ASTNodeBuilders.functionDeclaration(
       name,
       params,
       walk(),
@@ -215,7 +215,7 @@ export default function parse(tokens: readonly Token[]) {
     }
 
     current++;
-    return ASTNodes.callExpression(name, params, location);
+    return ASTNodeBuilders.callExpression(name, params, location);
   }
 
   const body: ASTNode[] = [];
@@ -223,5 +223,5 @@ export default function parse(tokens: readonly Token[]) {
     body.push(walk());
   }
 
-  return ASTNodes.program(body, new ImmutableLocation(0, 0, 0));
+  return ASTNodeBuilders.program(body, new ImmutableLocation(0, 0, 0));
 }
