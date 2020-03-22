@@ -180,12 +180,22 @@ export default function parse(tokens: readonly Token[]) {
     }
     const name = token.value;
 
+    token = tokens[++current];
+    if (!(token.type === TokenKind.PAREN && token.value === '[')) {
+      throw new ParseError(token);
+    }
+
     let params = [];
     token = tokens[++current];
-    while (token.type === TokenKind.PARAMETER) {
+    while (token.type === TokenKind.IDENTIFIER) {
       params.push(token.value);
       token = tokens[++current];
     }
+
+    if (!(token.type === TokenKind.PAREN && token.value === ']')) {
+      throw new ParseError(token);
+    }
+    current++;
 
     const node = ASTNodeBuilders.functionDeclaration(
       name,

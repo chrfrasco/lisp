@@ -3,6 +3,8 @@ import { Location } from "./reader";
 
 export type OperatorChar = "+" | "-" | "*" | "/";
 
+export type ParenChar = '(' | ')' | '[' | ']';
+
 export enum TokenKind {
   NUMBER = "NUMBER",
   STRING = "STRING",
@@ -10,16 +12,14 @@ export enum TokenKind {
   OPERATOR = "OPERATOR",
   IDENTIFIER = "IDENTIFIER",
   KEYWORD = "KEYWORD",
-  PARAMETER = "PARAMETER",
   NEWLINE = "NEWLINE"
 }
 
 export type Token = { location: Location } & (
   | { type: TokenKind.NUMBER; value: string }
   | { type: TokenKind.STRING; value: string }
-  | { type: TokenKind.PAREN; value: string }
   | { type: TokenKind.IDENTIFIER; value: string }
-  | { type: TokenKind.PARAMETER; value: string }
+  | { type: TokenKind.PAREN; value: ParenChar }
   | { type: TokenKind.KEYWORD; value: Keyword }
   | { type: TokenKind.OPERATOR; value: OperatorChar }
   | { type: TokenKind.NEWLINE }
@@ -32,7 +32,7 @@ export type OperatorToken = Extract<Token, { type: TokenKind.OPERATOR }>;
 export type KeywordToken = Extract<Token, { type: TokenKind.KEYWORD }>;
 
 export const TokenBuilders = {
-  paren(value: string, location: Location): Token {
+  paren(value: ParenChar, location: Location): Token {
     return { type: TokenKind.PAREN, location, value };
   },
   number(value: string, location: Location): Token {
@@ -49,9 +49,6 @@ export const TokenBuilders = {
   },
   keyword(value: Keyword, location: Location): Token {
     return { type: TokenKind.KEYWORD, location, value };
-  },
-  parameter(value: string, location: Location): Token {
-    return { type: TokenKind.PARAMETER, location, value };
   },
   newline(location: Location): Token {
     return { type: TokenKind.NEWLINE, location };

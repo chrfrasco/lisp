@@ -1,6 +1,6 @@
 import { isKeyword } from "./keywords";
 import { Reader, Location } from "./reader";
-import { Token, TokenBuilders, OperatorChar } from "./tokens";
+import { Token, TokenBuilders, OperatorChar, ParenChar } from "./tokens";
 import { ErrorAtLocation } from "./error_at_location";
 
 export default function lex(source: string): Token[] {
@@ -40,26 +40,10 @@ export default function lex(source: string): Token[] {
       continue;
     }
 
-    if (char === "(" || char === ")") {
-      unclosedParens += char === '(' ? 1 : -1;
+    if (isParen(char)) {
+      unclosedParens += isOpeningParen(char) ? 1 : -1;
       const location = reader.currentLocation();
       tokens.push(TokenBuilders.paren(char, location));
-      reader.next();
-      continue;
-    }
-
-    if (char === "[") {
-      while (reader.hasMoreChars() && reader.peek() !== "]") {
-        reader.next();
-        const location = reader.currentLocation();
-        const value = reader.takeCharsWhile(s => !isWhitespace(s) && s !== "]");
-        value && tokens.push(TokenBuilders.parameter(value, location));
-      }
-
-      if (reader.peek() !== ']') {
-        throw new UnexpectedEndOfInputError(reader.currentLocation());
-      }
-
       reader.next();
       continue;
     }
@@ -106,6 +90,15 @@ export class UnexpectedEndOfInputError extends ErrorAtLocation {
   constructor(location: Location) {
     super('unexpected end of input', location);
   }
+}
+
+const parenChars = ['(', ')', '[', ']'];
+function isParen(s: string): s is ParenChar {
+  return parenChars.includes(s);
+}
+
+function isOpeningParen(s: ParenChar): s is '(' | '[' {
+  return s === '(' || s === '[';
 }
 
 function isWhitespace(s: string): boolean {

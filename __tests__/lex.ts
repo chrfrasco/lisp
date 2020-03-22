@@ -58,7 +58,7 @@ test("handles strings (double quotes)", () => {
   expect(lex(input)).toEqual(output);
 });
 
-test("handles keywords", () => {
+test("handles def keyword", () => {
   let input = `(def x 1)`;
   let output = [
     TokWithLoc.paren("("),
@@ -68,24 +68,32 @@ test("handles keywords", () => {
     TokWithLoc.paren(")")
   ];
   expect(lex(input)).toEqual(output);
+})
 
-  input = `(fn foo [x y] 1)`;
-  output = [
+test('handles fn keyword with two args', () => {
+  const input = `(fn foo [x y] 1)`;
+  const output = [
     TokWithLoc.paren("("),
     TokWithLoc.keyword("fn"),
     TokWithLoc.identifier("foo"),
-    TokWithLoc.parameter("x"),
-    TokWithLoc.parameter("y"),
+    TokWithLoc.paren('['),
+    TokWithLoc.identifier("x"),
+    TokWithLoc.identifier("y"),
+    TokWithLoc.paren(']'),
     TokWithLoc.number("1"),
     TokWithLoc.paren(")")
   ];
   expect(lex(input)).toEqual(output);
+});
 
-  input = `(fn foo [] 1)`;
-  output = [
+test('handles fn keyword with no args', () => {
+  const input = `(fn foo [] 1)`;
+  const output = [
     TokWithLoc.paren("("),
     TokWithLoc.keyword("fn"),
     TokWithLoc.identifier("foo"),
+    TokWithLoc.paren('['),
+    TokWithLoc.paren(']'),
     TokWithLoc.number("1"),
     TokWithLoc.paren(")")
   ];
@@ -157,7 +165,9 @@ describe("Token.location", () => {
       TokenBuilders.paren("(", loc(0, 0, 0)),
       TokenBuilders.keyword("fn", loc(1, 1, 0)),
       TokenBuilders.identifier("f", loc(4, 4, 0)),
-      TokenBuilders.parameter("x", loc(7, 7, 0)),
+      TokenBuilders.paren('[', loc(6, 6, 0)),
+      TokenBuilders.identifier("x", loc(7, 7, 0)),
+      TokenBuilders.paren(']', loc(8, 8, 0)),
       TokenBuilders.number("1", loc(10, 10, 0)),
       TokenBuilders.paren(")", loc(11, 11, 0))
     ];
@@ -170,8 +180,10 @@ describe("Token.location", () => {
       TokenBuilders.paren("(", loc(0, 0, 0)),
       TokenBuilders.keyword("fn", loc(1, 1, 0)),
       TokenBuilders.identifier("f", loc(4, 4, 0)),
-      TokenBuilders.parameter("x", loc(7, 7, 0)),
-      TokenBuilders.parameter("y", loc(9, 9, 0)),
+      TokenBuilders.paren('[', loc(6, 6, 0)),
+      TokenBuilders.identifier("x", loc(7, 7, 0)),
+      TokenBuilders.identifier("y", loc(9, 9, 0)),
+      TokenBuilders.paren(']', loc(10, 10, 0)),
       TokenBuilders.number("1", loc(12, 12, 0)),
       TokenBuilders.paren(")", loc(13, 13, 0))
     ];
