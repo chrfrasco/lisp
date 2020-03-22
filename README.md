@@ -4,9 +4,24 @@
 
 ## Usage
 
-First, compile with `npm run build`. Then run with `node dist/index.js`. Can optionally be supplied with a file that will be executed. Otherwise will start a repl.
+The easiest way to run this is with `ts-node`:
 
-There are a couple of examples inside the `examples/` directory, e.g. `node dist/index.js examples/greet.lisp`.
+```
+$ npx ts-node src/index.ts
+> (fn greet [name] (concat "hello, " name"))
+> (print (greet "world"))
+hello, world
+nil
+>
+```
+
+If you pass a filename it will execute the script:
+
+```
+$ npx ts-node src/index.ts examples/referece_error.lisp
+(print y)
+       ^ ReferenceError: y is not defined
+```
 
 ### Built in operations
 
