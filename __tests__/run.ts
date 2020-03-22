@@ -4,7 +4,10 @@ import { Scope, RuntimeValueBuilders } from "../src/scope";
 import { ImmutableLocation } from "../src/reader";
 import { createBuilderWithLocation } from "../src/test_helpers/create_builder_with_location";
 
-const ASTNodesWithLoc = createBuilderWithLocation(ASTNodeBuilders, expect.any(ImmutableLocation));
+const ASTNodesWithLoc = createBuilderWithLocation(
+  ASTNodeBuilders,
+  expect.any(ImmutableLocation)
+);
 
 test("runs a full program", () => {
   const program = ASTNodesWithLoc.program([

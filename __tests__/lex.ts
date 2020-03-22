@@ -3,7 +3,10 @@ import { TokenBuilders } from "../src/tokens";
 import { ImmutableLocation } from "../src/reader";
 import { createBuilderWithLocation } from "../src/test_helpers/create_builder_with_location";
 
-const TokWithLoc = createBuilderWithLocation(TokenBuilders, expect.any(ImmutableLocation));
+const TokWithLoc = createBuilderWithLocation(
+  TokenBuilders,
+  expect.any(ImmutableLocation)
+);
 
 test("empty input", () => {
   expect(lex("")).toEqual([]);
@@ -89,9 +92,12 @@ test("handles keywords", () => {
   expect(lex(input)).toEqual(output);
 });
 
-test.each(["((", "))"])("should reject %s due to unbalanced brackets", input => {
-  expect(() => lex(input)).toThrow();
-});
+test.each(["((", "))"])(
+  "should reject %s due to unbalanced brackets",
+  input => {
+    expect(() => lex(input)).toThrow();
+  }
+);
 
 test.each([
   ["$", "$", [0, 0, 0]],
