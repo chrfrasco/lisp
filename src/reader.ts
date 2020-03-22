@@ -25,9 +25,9 @@ export class Reader {
     return this.location.offset < this.source.length;
   }
 
-  takeCharsWhile(predicate: (char: string) => boolean) {
+  takeCharsWhile(predicate: (char: string, value: string) => boolean) {
     let value = "";
-    while (this.hasMoreChars() && predicate(this.peek())) {
+    while (this.hasMoreChars() && predicate(this.peek(), value)) {
       value += this.source[this.location.offset];
       this.location.nextChar();
     }

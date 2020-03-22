@@ -109,6 +109,7 @@ export class Scope {
       makeComparisonOperator('>=', (a, b) => a >= b),
       makeComparisonOperator('<=', (a, b) => a <= b),
       makeComparisonOperator('=', (a, b) => a === b),
+      makeComparisonOperator('!=', (a, b) => a !== b),
 
       // boolean operators
       makeBooleanOperator('or', (a, b) => a || b),

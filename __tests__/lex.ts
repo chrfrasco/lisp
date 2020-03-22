@@ -1,5 +1,5 @@
 import lex, { LexError } from "../src/lex";
-import { TokenBuilders, operatorChars } from "../src/tokens";
+import { TokenBuilders, operators } from "../src/tokens";
 import { ImmutableLocation } from "../src/reader";
 import { createBuilderWithLocation } from "../src/test_helpers/create_builder_with_location";
 
@@ -100,7 +100,7 @@ test("handles fn keyword with no args", () => {
   expect(lex(input)).toEqual(output);
 });
 
-test.each(operatorChars)('should lex operator %s', (op) => {
+test.each(operators)('should lex operator %s', (op) => {
   expect(lex(`(${op})`)).toEqual([
     TokWithLoc.paren('('),
     TokWithLoc.operator(op),

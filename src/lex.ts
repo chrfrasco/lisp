@@ -1,6 +1,6 @@
 import { isKeyword } from "./keywords";
 import { Reader, Location } from "./reader";
-import { Token, TokenBuilders, OperatorChar, ParenChar, operatorChars, OperatorToken } from "./tokens";
+import { Token, TokenBuilders, Operator, ParenChar, operatorChars, OperatorToken, operators } from "./tokens";
 import { ErrorAtLocation } from "./error_at_location";
 
 export default function lex(source: string): Token[] {
@@ -48,9 +48,16 @@ export default function lex(source: string): Token[] {
       continue;
     }
 
-    if (isOperator(char)) {
+    if (isOperatorChar(char)) {
       const location = reader.currentLocation();
-      const operator = reader.takeCharsWhile(isOperator) as OperatorChar;
+      const operator = reader.takeCharsWhile((char, value) => {
+        return isOperatorChar(char) && operators.some(operator => operator.startsWith(value));
+      });
+      if (!isOperator(operator)) {
+        // TODO(christianscott): the error produced here is not clear enough
+        throw new LexError(operator, location);
+      }
+
       tokens.push(TokenBuilders.operator(operator, location));
       continue;
     }
@@ -118,6 +125,10 @@ function isNumeric(s: string): boolean {
   return /[0-9]/.test(s);
 }
 
-function isOperator(s: string): s is OperatorChar {
-  return operatorChars.includes(s);
+function isOperator(s: string): s is Operator {
+  return operators.includes(s);
+}
+
+function isOperatorChar(s: string): boolean {
+  return operatorChars.has(s);
 }

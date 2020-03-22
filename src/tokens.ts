@@ -1,10 +1,10 @@
 import { Keyword } from "./keywords";
 import { Location } from "./reader";
 
-export type OperatorChar = "+" | "-" | "*" | "/" | '>' | '<' | '>=' | '<=' | '=';
+export type Operator = "+" | "-" | "*" | "/" | '>' | '<' | '>=' | '<=' | '=' | '!=';
 
 // hack to get an exhaustive array over a union
-const _operatorChars: Record<OperatorChar, null> = {
+const _operators: Record<Operator, null> = {
   '+': null,
   '-': null,
   '*': null,
@@ -14,8 +14,10 @@ const _operatorChars: Record<OperatorChar, null> = {
   '>=': null,
   '<=': null,
   '=': null,
+  '!=': null,
 };
-export const operatorChars = Object.keys(_operatorChars);
+export const operators = Object.keys(_operators);
+export const operatorChars = new Set(operators.join('').split(''));
 
 export type ParenChar = '(' | ')' | '[' | ']';
 
@@ -35,7 +37,7 @@ export type Token = { location: Location } & (
   | { type: TokenKind.IDENTIFIER; value: string }
   | { type: TokenKind.PAREN; value: ParenChar }
   | { type: TokenKind.KEYWORD; value: Keyword }
-  | { type: TokenKind.OPERATOR; value: OperatorChar }
+  | { type: TokenKind.OPERATOR; value: Operator }
   | { type: TokenKind.NEWLINE }
 );
 
@@ -52,7 +54,7 @@ export const TokenBuilders = {
   number(value: string, location: Location): Token {
     return { type: TokenKind.NUMBER, location, value };
   },
-  operator(value: OperatorChar, location: Location): Token {
+  operator(value: Operator, location: Location): Token {
     return { type: TokenKind.OPERATOR, location, value };
   },
   identifier(value: string, location: Location): Token {
