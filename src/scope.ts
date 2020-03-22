@@ -78,7 +78,8 @@ export class Scope {
       ["concat", RuntimeValueBuilders.function('concat', (...args) => {
         for (const arg of args) {
           MismatchedTypesError.assertTypes(
-            arg.kind === RuntimeValueKind.STRING,
+            RuntimeValueKind.STRING,
+            arg,
             'concat expects all args to be strings',
           );
         }
@@ -116,10 +117,6 @@ export class Scope {
   assign(name: string, value: RuntimeValue) {
     this.variables.set(name, value);
   }
-
-  includes(name: string): boolean {
-    return this.variables.has(name);
-  }
 }
 
 function makeNumberOperator(
@@ -129,24 +126,25 @@ function makeNumberOperator(
   return RuntimeValueBuilders.function(
     name,
     (a: RuntimeValue, b: RuntimeValue) => {
-      MismatchedTypesError.assertTypes(
-        a.kind === RuntimeValueKind.NUMBER &&
-          b.kind === RuntimeValueKind.NUMBER,
-        `${name} expects two numbers`
-      );
+      MismatchedTypesError.assertTypes(RuntimeValueKind.NUMBER, a, `expected a to be a number`);
+      MismatchedTypesError.assertTypes(RuntimeValueKind.NUMBER, b, `expected b to be a number`);
       return RuntimeValueBuilders.number(op(a.value, b.value));
     }
   );
 }
 
 export class MismatchedTypesError extends Error {
-  constructor(message: string) {
+  constructor(message: string, readonly value: RuntimeValue) {
     super(message);
   }
 
-  static assertTypes(cond: boolean, message: string): asserts cond {
-    if (!cond) {
-      throw new MismatchedTypesError(message);
+  static assertTypes<K extends RuntimeValueKind>(
+    expectedKind: K,
+    value: RuntimeValue,
+    message: string
+  ): asserts value is Extract<RuntimeValue, { kind: K }> {
+    if (value.kind !== expectedKind) {
+      throw new MismatchedTypesError(message, value);
     }
   }
 }

@@ -53,7 +53,7 @@ export default function run(
         return fn.value.apply(null, params);
       } catch (error) {
         if (error instanceof MismatchedTypesError) {
-          throw new RuntimeTypeError(error.message, node);
+          throw new RuntimeTypeError(error.value, node);
         } else {
           throw error;
         }
@@ -81,7 +81,7 @@ export default function run(
   }
 }
 
-class ReferenceError extends ErrorAtLocation {
+export class ReferenceError extends ErrorAtLocation {
   constructor(node: CallExpressionNode | IdentifierNode) {
     const identifier =
       node.type === ASTNodeKind.CALL_EXPRESSION ? node.name : node.value;
@@ -89,15 +89,15 @@ class ReferenceError extends ErrorAtLocation {
   }
 }
 
-class NotCallableError extends ErrorAtLocation {
+export class NotCallableError extends ErrorAtLocation {
   constructor(value: RuntimeValue, callExpr: CallExpressionNode) {
     super(`value of type ${value.kind} is not callable`, callExpr.location);
   }
 }
 
-class RuntimeTypeError extends ErrorAtLocation {
-  constructor(message: string, callExpr: CallExpressionNode) {
-    super(message, callExpr.location);
+export class RuntimeTypeError extends ErrorAtLocation {
+  constructor(value: RuntimeValue, callExpr: CallExpressionNode) {
+    super(`unexpected value of type ${value.kind}`, callExpr.location);
   }
 }
 

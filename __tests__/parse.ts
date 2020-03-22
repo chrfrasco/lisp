@@ -85,8 +85,8 @@ test("function declaration with no arguments", () => {
     TokWithLoc.paren("("),
     TokWithLoc.keyword("fn"),
     TokWithLoc.identifier("foo"),
-    TokWithLoc.paren('['),
-    TokWithLoc.paren(']'),
+    TokWithLoc.paren("["),
+    TokWithLoc.paren("]"),
     TokWithLoc.number("1"),
     TokWithLoc.paren(")")
   ];
@@ -105,9 +105,9 @@ test("function declaration with one argument", () => {
     TokWithLoc.paren("("),
     TokWithLoc.keyword("fn"),
     TokWithLoc.identifier("foo"),
-    TokWithLoc.paren('['),
+    TokWithLoc.paren("["),
     TokWithLoc.identifier("x"),
-    TokWithLoc.paren(']'),
+    TokWithLoc.paren("]"),
     TokWithLoc.number("1"),
     TokWithLoc.paren(")")
   ];
@@ -126,10 +126,10 @@ test("function declaration with multiple arguments", () => {
     TokWithLoc.paren("("),
     TokWithLoc.keyword("fn"),
     TokWithLoc.identifier("foo"),
-    TokWithLoc.paren('['),
+    TokWithLoc.paren("["),
     TokWithLoc.identifier("x"),
     TokWithLoc.identifier("y"),
-    TokWithLoc.paren(']'),
+    TokWithLoc.paren("]"),
     TokWithLoc.number("1"),
     TokWithLoc.paren(")")
   ];
@@ -148,9 +148,9 @@ test("function declaration with complex body", () => {
     TokWithLoc.paren("("),
     TokWithLoc.keyword("fn"),
     TokWithLoc.identifier("foo"),
-    TokWithLoc.paren('['),
+    TokWithLoc.paren("["),
     TokWithLoc.identifier("x"),
-    TokWithLoc.paren(']'),
+    TokWithLoc.paren("]"),
     TokWithLoc.paren("("),
     TokWithLoc.identifier("print"),
     TokWithLoc.paren("("),

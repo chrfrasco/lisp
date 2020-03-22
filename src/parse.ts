@@ -70,7 +70,7 @@ export const ASTNodeBuilders = {
     name: string,
     params: readonly ASTNode[],
     location: Location
-  ): ASTNode {
+  ): CallExpressionNode {
     return { type: ASTNodeKind.CALL_EXPRESSION, location, name, params };
   },
   stringLiteral(value: string, location: Location): ASTNode {
@@ -79,7 +79,7 @@ export const ASTNodeBuilders = {
   numberLiteral(value: string, location: Location): ASTNode {
     return { type: ASTNodeKind.NUMBER_LITERAL, location, value };
   },
-  identifier(value: string, location: Location): ASTNode {
+  identifier(value: string, location: Location): IdentifierNode {
     return { type: ASTNodeKind.IDENTIFIER, location, value };
   },
   functionDeclaration(

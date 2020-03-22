@@ -1,5 +1,5 @@
 import { evaluate } from "../src/evaluate";
-import { Scope } from "../src/scope";
+import { Scope, RuntimeValueBuilders } from "../src/scope";
 
 test("runs correctly", () => {
   const print = jest.fn();
@@ -40,4 +40,32 @@ test("function calls with arguments", () => {
     scope
   );
   expect(print).toHaveBeenCalledWith("hello christian");
+});
+
+describe("Scope.prelude", () => {
+  test("+", () => {
+    expect(evaluate(`(+ 1 1)`)).toEqual(RuntimeValueBuilders.number(2));
+  });
+
+  test("-", () => {
+    expect(evaluate(`(- 1 1)`)).toEqual(RuntimeValueBuilders.number(0));
+  });
+
+  test("*", () => {
+    expect(evaluate(`(* 10 10)`)).toEqual(RuntimeValueBuilders.number(100));
+  });
+
+  test("/", () => {
+    expect(evaluate(`(/ 10 10)`)).toEqual(RuntimeValueBuilders.number(1));
+  });
+
+  test("pow", () => {
+    expect(evaluate(`(pow 10 2)`)).toEqual(RuntimeValueBuilders.number(100));
+  });
+
+  test("concat", () => {
+    expect(evaluate(`(concat "hello" ", " "world" "!")`)).toEqual(
+      RuntimeValueBuilders.string("hello, world!")
+    );
+  });
 });
