@@ -4,8 +4,10 @@
   "main": "src/index.js",
   "license": "MIT",
   "scripts": {
+    "build": "tsc",
     "test": "jest",
-    "format": "prettier --write src/**/*.ts __tests__/**/*.ts"
+    "format": "prettier --write src/**/*.ts __tests__/**/*.ts",
+    "check": "yarn build && yarn test && yarn format --check"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
