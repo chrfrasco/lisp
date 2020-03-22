@@ -1,4 +1,4 @@
-import { UnreachableError } from "./preconditions";
+import { UnreachableError, Preconditions } from "./preconditions";
 
 export enum RuntimeValueKind {
   STRING = "STRING",
@@ -104,13 +104,31 @@ export class Scope {
       makeNumberOperator("pow", (a, b) => a ** b),
 
       // comparison operators
-      makeComparisonOperators('>', (a, b) => a > b),
-      makeComparisonOperators('<', (a, b) => a < b),
-      makeComparisonOperators('>=', (a, b) => a >= b),
-      makeComparisonOperators('<=', (a, b) => a <= b),
-      makeComparisonOperators('=', (a, b) => a === b),
+      makeComparisonOperator('>', (a, b) => a > b),
+      makeComparisonOperator('<', (a, b) => a < b),
+      makeComparisonOperator('>=', (a, b) => a >= b),
+      makeComparisonOperator('<=', (a, b) => a <= b),
+      makeComparisonOperator('=', (a, b) => a === b),
 
       // boolean operators
+      makeBooleanOperator('or', (a, b) => a || b),
+      makeBooleanOperator('and', (a, b) => a && b),
+      makeBooleanOperator('xor', (a, b) => (a || b) && !(a && b)),
+      ['not', RuntimeValueBuilders.function('not', (x) => {
+        WrongTypeError.assertIs(RuntimeValueKind.BOOL, x, 'expected x to be a bool');
+        return RuntimeValueBuilders.bool(!x.value);
+      })],
+
+      // branching logic
+      ['if', RuntimeValueBuilders.function('if', (condition, yes, no) => {
+        WrongTypeError.assertIs(RuntimeValueKind.BOOL, condition, 'expected condition to be a bool');
+
+        // TODO(christianscott): turn these into runtime errors
+        Preconditions.checkState(yes != null, 'if expects a yes argument');
+        Preconditions.checkState(no != null, 'if expects a no argument');
+
+        return condition.value ? yes : no;
+      })],
     ]);
   }
 
@@ -154,7 +172,7 @@ function makeNumberOperator(
   return [name, fn];
 }
 
-function makeComparisonOperators(
+function makeComparisonOperator(
   name: string,
   op: (a: any, b: any) => boolean
 ): [string, RuntimeFunctionValue] {
@@ -165,6 +183,21 @@ function makeComparisonOperators(
       const valueA = RuntimeValues.jsPrimitiveFor(a);
       const valueB = RuntimeValues.jsPrimitiveFor(b);
       return RuntimeValueBuilders.bool(op(valueA, valueB));
+    }
+  );
+  return [name, fn];
+}
+
+function makeBooleanOperator(
+  name: string,
+  op: (a: boolean, b: boolean) => boolean
+): [string, RuntimeFunctionValue] {
+  const fn = RuntimeValueBuilders.function(
+    name,
+    (a: RuntimeValue, b: RuntimeValue) => {
+      WrongTypeError.assertIs(RuntimeValueKind.BOOL, a, `expected a to be a boolean`);
+      WrongTypeError.assertIs(RuntimeValueKind.BOOL, b, `expected b to be a boolean`);
+      return RuntimeValueBuilders.bool(op(a.value, b.value));
     }
   );
   return [name, fn];
