@@ -3,8 +3,9 @@ import { UnreachableError } from "./preconditions";
 export enum RuntimeValueKind {
   STRING = "STRING",
   NUMBER = "NUMBER",
+  BOOL = "BOOL",
   FUNCTION = "FUNCTION",
-  NIL = "NIL"
+  NIL = "NIL",
 }
 
 export type RuntimeFunctionValue = {
@@ -16,6 +17,7 @@ export type RuntimeFunctionValue = {
 export type RuntimeValue =
   | RuntimeFunctionValue
   | { kind: RuntimeValueKind.NUMBER; value: number }
+  | { kind: RuntimeValueKind.BOOL; value: boolean }
   | { kind: RuntimeValueKind.STRING; value: string }
   | { kind: RuntimeValueKind.NIL };
 
@@ -34,6 +36,9 @@ export const RuntimeValueBuilders = {
   },
   nil(): RuntimeValue {
     return { kind: RuntimeValueKind.NIL };
+  },
+  bool(value: boolean): RuntimeValue {
+    return { kind: RuntimeValueKind.BOOL, value }
   }
 };
 
@@ -47,6 +52,7 @@ export const RuntimeValues = {
   repr(value: RuntimeValue): string {
     switch (value.kind) {
       case RuntimeValueKind.NUMBER:
+      case RuntimeValueKind.BOOL:
         return String(value.value);
       case RuntimeValueKind.STRING:
         return `"` + value.value + `"`;
@@ -86,11 +92,22 @@ export class Scope {
         const concatted = args.map(RuntimeValues.jsPrimitiveFor).join('');
         return RuntimeValueBuilders.string(concatted);
       })],
-      ["+", makeNumberOperator("+", (a, b) => a + b)],
-      ["-", makeNumberOperator("-", (a, b) => a - b)],
-      ["*", makeNumberOperator("*", (a, b) => a * b)],
-      ["/", makeNumberOperator("/", (a, b) => a / b)],
-      ["pow", makeNumberOperator("pow", (a, b) => a ** b)]
+
+      // numeric operators
+      makeNumberOperator("+", (a, b) => a + b),
+      makeNumberOperator("-", (a, b) => a - b),
+      makeNumberOperator("*", (a, b) => a * b),
+      makeNumberOperator("/", (a, b) => a / b),
+      makeNumberOperator("pow", (a, b) => a ** b),
+
+      // comparison operators
+      makeComparisonOperators('>', (a, b) => a > b),
+      makeComparisonOperators('<', (a, b) => a < b),
+      makeComparisonOperators('>=', (a, b) => a >= b),
+      makeComparisonOperators('<=', (a, b) => a <= b),
+      makeComparisonOperators('=', (a, b) => a === b),
+
+      // boolean operators
     ]);
   }
 
@@ -122,8 +139,8 @@ export class Scope {
 function makeNumberOperator(
   name: string,
   op: (a: number, b: number) => number
-) {
-  return RuntimeValueBuilders.function(
+): [string, RuntimeFunctionValue] {
+  const fn = RuntimeValueBuilders.function(
     name,
     (a: RuntimeValue, b: RuntimeValue) => {
       MismatchedTypesError.assertTypes(RuntimeValueKind.NUMBER, a, `expected a to be a number`);
@@ -131,6 +148,22 @@ function makeNumberOperator(
       return RuntimeValueBuilders.number(op(a.value, b.value));
     }
   );
+  return [name, fn];
+}
+
+function makeComparisonOperators(
+  name: string,
+  op: (a: any, b: any) => boolean
+): [string, RuntimeFunctionValue] {
+  const fn = RuntimeValueBuilders.function(
+    name,
+    (a: RuntimeValue, b: RuntimeValue) => {
+      const valueA = RuntimeValues.jsPrimitiveFor(a);
+      const valueB = RuntimeValues.jsPrimitiveFor(b);
+      return RuntimeValueBuilders.bool(op(valueA, valueB));
+    }
+  );
+  return [name, fn];
 }
 
 export class MismatchedTypesError extends Error {
