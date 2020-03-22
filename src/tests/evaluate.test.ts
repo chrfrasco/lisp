@@ -43,29 +43,69 @@ test("function calls with arguments", () => {
 });
 
 describe("Scope.prelude", () => {
-  test("+", () => {
-    expect(evaluate(`(+ 1 1)`)).toEqual(RuntimeValueBuilders.number(2));
-  });
+  test('nil', () => {
+    expect(evaluate(`nil`)).toEqual(RuntimeValueBuilders.nil());
+  })
 
-  test("-", () => {
-    expect(evaluate(`(- 1 1)`)).toEqual(RuntimeValueBuilders.number(0));
-  });
+  test('true', () => {
+    expect(evaluate(`true`)).toEqual(RuntimeValueBuilders.bool(true));
+  })
 
-  test("*", () => {
-    expect(evaluate(`(* 10 10)`)).toEqual(RuntimeValueBuilders.number(100));
-  });
-
-  test("/", () => {
-    expect(evaluate(`(/ 10 10)`)).toEqual(RuntimeValueBuilders.number(1));
-  });
-
-  test("pow", () => {
-    expect(evaluate(`(pow 10 2)`)).toEqual(RuntimeValueBuilders.number(100));
-  });
+  test('false', () => {
+    expect(evaluate(`false`)).toEqual(RuntimeValueBuilders.bool(false));
+  })
 
   test("concat", () => {
     expect(evaluate(`(concat "hello" ", " "world" "!")`)).toEqual(
       RuntimeValueBuilders.string("hello, world!")
     );
+  });
+
+  describe('numeric operators', () => {
+    test("+", () => {
+      expect(evaluate(`(+ 1 1)`)).toEqual(RuntimeValueBuilders.number(2));
+    });
+
+    test("-", () => {
+      expect(evaluate(`(- 1 1)`)).toEqual(RuntimeValueBuilders.number(0));
+    });
+
+    test("*", () => {
+      expect(evaluate(`(* 10 10)`)).toEqual(RuntimeValueBuilders.number(100));
+    });
+
+    test("/", () => {
+      expect(evaluate(`(/ 10 10)`)).toEqual(RuntimeValueBuilders.number(1));
+    });
+
+    test("pow", () => {
+      expect(evaluate(`(pow 10 2)`)).toEqual(RuntimeValueBuilders.number(100));
+    });
+  })
+
+  describe('comparison operators', () => {
+    test('>', () => {
+      expect(evaluate('(> 1 0)')).toEqual(RuntimeValueBuilders.bool(true));
+    });
+
+    test('<', () => {
+      expect(evaluate('(< 1 0)')).toEqual(RuntimeValueBuilders.bool(false));
+    });
+
+    test('>=', () => {
+      expect(evaluate('(>= 1 0)')).toEqual(RuntimeValueBuilders.bool(true));
+    });
+
+    test('<=', () => {
+      expect(evaluate('(<= 1 0)')).toEqual(RuntimeValueBuilders.bool(false));
+    });
+
+    test('=', () => {
+      expect(evaluate('(= 1 0)')).toEqual(RuntimeValueBuilders.bool(false));
+    });
+
+    test('!=', () => {
+      expect(evaluate('(!= 1 0)')).toEqual(RuntimeValueBuilders.bool(true));
+    });
   });
 });
