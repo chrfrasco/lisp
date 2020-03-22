@@ -1,7 +1,7 @@
-import lex, { LexError } from "../src/lex";
-import { TokenBuilders, operators } from "../src/tokens";
-import { ImmutableLocation } from "../src/reader";
-import { createBuilderWithLocation } from "../src/test_helpers/create_builder_with_location";
+import lex, { LexError } from "../lex";
+import { TokenBuilders, operators } from "../tokens";
+import { ImmutableLocation } from "../reader";
+import { createBuilderWithLocation } from "./create_builder_with_location";
 
 const TokWithLoc = createBuilderWithLocation(
   TokenBuilders,

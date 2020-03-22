@@ -1,5 +1,5 @@
-import { ErrorAtLocation } from '../src/error_at_location'
-import { ImmutableLocation } from '../src/reader';
+import { ErrorAtLocation } from '../error_at_location'
+import { ImmutableLocation } from '../reader';
 
 class ErrForTesting extends ErrorAtLocation {}
 

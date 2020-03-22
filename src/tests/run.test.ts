@@ -1,8 +1,8 @@
-import run, { ReferenceError, NotCallableError, RuntimeTypeError } from "../src/run";
-import { ASTNode, ASTNodeBuilders } from "../src/parse";
-import { Scope, RuntimeValueBuilders } from "../src/scope";
-import { ImmutableLocation } from "../src/reader";
-import { createBuilderWithLocation } from "../src/test_helpers/create_builder_with_location";
+import run, { ReferenceError, NotCallableError, RuntimeTypeError } from "../run";
+import { ASTNode, ASTNodeBuilders } from "../parse";
+import { Scope, RuntimeValueBuilders } from "../scope";
+import { ImmutableLocation } from "../reader";
+import { createBuilderWithLocation } from "./create_builder_with_location";
 
 const ASTNodesWithLoc = createBuilderWithLocation(
   ASTNodeBuilders,

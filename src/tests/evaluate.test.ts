@@ -1,5 +1,5 @@
-import { evaluate } from "../src/evaluate";
-import { Scope, RuntimeValueBuilders } from "../src/scope";
+import { evaluate } from "../evaluate";
+import { Scope, RuntimeValueBuilders } from "../scope";
 
 test("runs correctly", () => {
   const print = jest.fn();
