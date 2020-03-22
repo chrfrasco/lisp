@@ -1,21 +1,10 @@
 import run from "../src/run";
-import { ASTNode, ASTNodes } from "../src/parse";
+import { ASTNode, ASTNodeBuilders } from "../src/parse";
 import { Scope, RuntimeValueBuilders } from "../src/scope";
 import { ImmutableLocation } from "../src/reader";
+import { createBuilderWithLocation } from "../src/test_helpers/create_builder_with_location";
 
-// DUPLICATE(#2)
-const ASTNodesWithLoc = new Proxy(
-  {},
-  {
-    get(_: any, prop: string): (...args: any[]) => ASTNode {
-      if (prop in ASTNodes) {
-        return (...args: any[]) =>
-          ASTNodes[prop](...args, expect.any(ImmutableLocation));
-      }
-      throw new TypeError(`no builder with name ${prop}`);
-    }
-  }
-);
+const ASTNodesWithLoc = createBuilderWithLocation(ASTNodeBuilders, expect.any(ImmutableLocation));
 
 test("runs a full program", () => {
   const program = ASTNodesWithLoc.program([

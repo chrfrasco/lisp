@@ -1,20 +1,9 @@
 import lex, { LexError } from "../src/lex";
-import { Tokens } from "../src/tokens";
+import { TokenBuilders } from "../src/tokens";
 import { ImmutableLocation } from "../src/reader";
+import { createBuilderWithLocation } from "../src/test_helpers/create_builder_with_location";
 
-// DUPLICATE(#1)
-const TokWithLoc = new Proxy(
-  {},
-  {
-    get(_: any, prop: string) {
-      if (prop in Tokens) {
-        return (value: any) =>
-          Tokens[prop](value, expect.any(ImmutableLocation));
-      }
-      throw new TypeError(`no builder with name ${prop}`);
-    }
-  }
-);
+const TokWithLoc = createBuilderWithLocation(TokenBuilders, expect.any(ImmutableLocation));
 
 test("empty input", () => {
   expect(lex("")).toEqual([]);
@@ -124,34 +113,34 @@ describe("Token.location", () => {
   test("simple source", () => {
     const input = `(x)`;
     const output = [
-      Tokens.paren("(", loc(0, 0, 0)),
-      Tokens.identifier("x", loc(1, 1, 0)),
-      Tokens.paren(")", loc(2, 2, 0))
+      TokenBuilders.paren("(", loc(0, 0, 0)),
+      TokenBuilders.identifier("x", loc(1, 1, 0)),
+      TokenBuilders.paren(")", loc(2, 2, 0))
     ];
     expect(lex(input)).toEqual(output);
   });
 
   test("newline", () => {
-    expect(lex("\n")).toEqual([Tokens.newline(loc(0, 0, 0))]);
+    expect(lex("\n")).toEqual([TokenBuilders.newline(loc(0, 0, 0))]);
   });
 
   test("newline before simple source", () => {
     expect(lex("\n(x)")).toEqual([
-      Tokens.newline(loc(0, 0, 0)),
-      Tokens.paren("(", loc(1, 0, 1)),
-      Tokens.identifier("x", loc(2, 1, 1)),
-      Tokens.paren(")", loc(3, 2, 1))
+      TokenBuilders.newline(loc(0, 0, 0)),
+      TokenBuilders.paren("(", loc(1, 0, 1)),
+      TokenBuilders.identifier("x", loc(2, 1, 1)),
+      TokenBuilders.paren(")", loc(3, 2, 1))
     ]);
   });
 
   test("assignment", () => {
     const input = `(def x 1)`;
     const output = [
-      Tokens.paren("(", loc(0, 0, 0)),
-      Tokens.keyword("def", loc(1, 1, 0)),
-      Tokens.identifier("x", loc(5, 5, 0)),
-      Tokens.number("1", loc(7, 7, 0)),
-      Tokens.paren(")", loc(8, 8, 0))
+      TokenBuilders.paren("(", loc(0, 0, 0)),
+      TokenBuilders.keyword("def", loc(1, 1, 0)),
+      TokenBuilders.identifier("x", loc(5, 5, 0)),
+      TokenBuilders.number("1", loc(7, 7, 0)),
+      TokenBuilders.paren(")", loc(8, 8, 0))
     ];
     expect(lex(input)).toEqual(output);
   });
@@ -159,12 +148,12 @@ describe("Token.location", () => {
   test("function declaration", () => {
     const input = `(fn f [x] 1)`;
     const output = [
-      Tokens.paren("(", loc(0, 0, 0)),
-      Tokens.keyword("fn", loc(1, 1, 0)),
-      Tokens.identifier("f", loc(4, 4, 0)),
-      Tokens.parameter("x", loc(7, 7, 0)),
-      Tokens.number("1", loc(10, 10, 0)),
-      Tokens.paren(")", loc(11, 11, 0))
+      TokenBuilders.paren("(", loc(0, 0, 0)),
+      TokenBuilders.keyword("fn", loc(1, 1, 0)),
+      TokenBuilders.identifier("f", loc(4, 4, 0)),
+      TokenBuilders.parameter("x", loc(7, 7, 0)),
+      TokenBuilders.number("1", loc(10, 10, 0)),
+      TokenBuilders.paren(")", loc(11, 11, 0))
     ];
     expect(lex(input)).toEqual(output);
   });
@@ -172,13 +161,13 @@ describe("Token.location", () => {
   test("function declaration with multiple arguments", () => {
     const input = `(fn f [x y] 1)`;
     const output = [
-      Tokens.paren("(", loc(0, 0, 0)),
-      Tokens.keyword("fn", loc(1, 1, 0)),
-      Tokens.identifier("f", loc(4, 4, 0)),
-      Tokens.parameter("x", loc(7, 7, 0)),
-      Tokens.parameter("y", loc(9, 9, 0)),
-      Tokens.number("1", loc(12, 12, 0)),
-      Tokens.paren(")", loc(13, 13, 0))
+      TokenBuilders.paren("(", loc(0, 0, 0)),
+      TokenBuilders.keyword("fn", loc(1, 1, 0)),
+      TokenBuilders.identifier("f", loc(4, 4, 0)),
+      TokenBuilders.parameter("x", loc(7, 7, 0)),
+      TokenBuilders.parameter("y", loc(9, 9, 0)),
+      TokenBuilders.number("1", loc(12, 12, 0)),
+      TokenBuilders.paren(")", loc(13, 13, 0))
     ];
     expect(lex(input)).toEqual(output);
   });
@@ -186,21 +175,21 @@ describe("Token.location", () => {
   test("multiple lines", () => {
     const input = `(x)\n(y)\n(z)`;
     const output = [
-      Tokens.paren("(", loc(0, 0, 0)),
-      Tokens.identifier("x", loc(1, 1, 0)),
-      Tokens.paren(")", loc(2, 2, 0)),
+      TokenBuilders.paren("(", loc(0, 0, 0)),
+      TokenBuilders.identifier("x", loc(1, 1, 0)),
+      TokenBuilders.paren(")", loc(2, 2, 0)),
 
-      Tokens.newline(loc(3, 3, 0)),
+      TokenBuilders.newline(loc(3, 3, 0)),
 
-      Tokens.paren("(", loc(4, 0, 1)),
-      Tokens.identifier("y", loc(5, 1, 1)),
-      Tokens.paren(")", loc(6, 2, 1)),
+      TokenBuilders.paren("(", loc(4, 0, 1)),
+      TokenBuilders.identifier("y", loc(5, 1, 1)),
+      TokenBuilders.paren(")", loc(6, 2, 1)),
 
-      Tokens.newline(loc(7, 3, 1)),
+      TokenBuilders.newline(loc(7, 3, 1)),
 
-      Tokens.paren("(", loc(8, 0, 2)),
-      Tokens.identifier("z", loc(9, 1, 2)),
-      Tokens.paren(")", loc(10, 2, 2))
+      TokenBuilders.paren("(", loc(8, 0, 2)),
+      TokenBuilders.identifier("z", loc(9, 1, 2)),
+      TokenBuilders.paren(")", loc(10, 2, 2))
     ];
     expect(lex(input)).toEqual(output);
   });

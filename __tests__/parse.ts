@@ -1,34 +1,11 @@
-import parse, { ASTNodeBuilders, ASTNode, ParseError } from "../src/parse";
+import parse, { ASTNodeBuilders, ParseError } from "../src/parse";
 import { TokenBuilders } from "../src/tokens";
 import { ImmutableLocation } from "../src/reader";
+import { createBuilderWithLocation } from '../src/test_helpers/create_builder_with_location'
 
-// DUPLICATE(#1)
-const TokWithLoc = new Proxy(
-  {},
-  {
-    get(_: any, prop: string) {
-      if (prop in TokenBuilders) {
-        return (value: any) =>
-          TokenBuilders[prop](value, expect.any(ImmutableLocation));
-      }
-      throw new TypeError(`no builder with name ${prop}`);
-    }
-  }
-);
+const TokWithLoc = createBuilderWithLocation(TokenBuilders, expect.any(ImmutableLocation));
 
-// DUPLICATE(#2)
-const ASTNodesWithLoc = new Proxy(
-  {},
-  {
-    get(_: any, prop: string): (...args: any[]) => ASTNode {
-      if (prop in ASTNodeBuilders) {
-        return (...args: any[]) =>
-          ASTNodeBuilders[prop](...args, expect.any(ImmutableLocation));
-      }
-      throw new TypeError(`no builder with name ${prop}`);
-    }
-  }
-);
+const ASTNodesWithLoc = createBuilderWithLocation(ASTNodeBuilders, expect.any(ImmutableLocation));
 
 test("handles empty list", () => {
   expect(parse([])).toEqual(ASTNodesWithLoc.program([]));
@@ -207,42 +184,50 @@ test("nested call expressions", () => {
   expect(parse(input)).toEqual(output);
 });
 
-test('rejects keywords being used as identifiers', () => {
+test("rejects keywords being used as identifiers", () => {
   let input = [
     TokWithLoc.paren("("),
     TokWithLoc.identifier("def"),
     TokWithLoc.keyword("def"),
     TokWithLoc.number("1"),
-    TokWithLoc.paren(")"),
-  ]; 
-  let err = new ParseError(TokenBuilders.keyword('def', new ImmutableLocation(5, 5, 0)));
-  expect(() => parse(input)).toThrowError(err)
+    TokWithLoc.paren(")")
+  ];
+  let err = new ParseError(
+    TokenBuilders.keyword("def", new ImmutableLocation(5, 5, 0))
+  );
+  expect(() => parse(input)).toThrowError(err);
 
   input = [
     TokWithLoc.paren("("),
     TokWithLoc.identifier("def"),
     TokWithLoc.keyword("fn"),
     TokWithLoc.number("1"),
-    TokWithLoc.paren(")"),
-  ]; 
-  err = new ParseError(TokenBuilders.keyword('fn', new ImmutableLocation(5, 5, 0)));
-  expect(() => parse(input)).toThrowError(err)
+    TokWithLoc.paren(")")
+  ];
+  err = new ParseError(
+    TokenBuilders.keyword("fn", new ImmutableLocation(5, 5, 0))
+  );
+  expect(() => parse(input)).toThrowError(err);
 });
 
-test('rejects call expressions not using identifiers or operators', () => {
+test("rejects call expressions not using identifiers or operators", () => {
   let input = [
     TokWithLoc.paren("("),
     TokWithLoc.string("x"),
-    TokWithLoc.paren(")"),
-  ]; 
-  let err = new ParseError(TokenBuilders.string('def', new ImmutableLocation(1, 1, 0)));
-  expect(() => parse(input)).toThrowError(err) 
+    TokWithLoc.paren(")")
+  ];
+  let err = new ParseError(
+    TokenBuilders.string("def", new ImmutableLocation(1, 1, 0))
+  );
+  expect(() => parse(input)).toThrowError(err);
 
   input = [
     TokWithLoc.paren("("),
     TokWithLoc.number("1"),
-    TokWithLoc.paren(")"),
-  ]; 
-  err = new ParseError(TokenBuilders.number('1', new ImmutableLocation(1, 1, 0)));
-  expect(() => parse(input)).toThrowError(err) 
-})
+    TokWithLoc.paren(")")
+  ];
+  err = new ParseError(
+    TokenBuilders.number("1", new ImmutableLocation(1, 1, 0))
+  );
+  expect(() => parse(input)).toThrowError(err);
+});
