@@ -4,12 +4,16 @@
 
 ## Usage
 
-Currently only usable via the repl, which can be started with `node repl`.
+First, compile with `npm run build`. Then run with `node dist/index.js`. Can optionally be supplied with a file that will be executed. Otherwise will start a repl.
+
+There are a couple of examples inside the `examples/` directory, e.g. `node dist/index.js examples/greet.lisp`.
 
 ### Built in operations
 
 - `print` - calls `console.log` behind the scenes
+- `concat` - concatenates many strings
 - Mathematical operators (`+`, `-`, `*`, `/`, `pow`)
+- Comparator operators (`>`, `<`, `>=`, `<=`, `=`)
 
 ### Data types
 
