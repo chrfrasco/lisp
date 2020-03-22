@@ -13,12 +13,17 @@ There are a couple of examples inside the `examples/` directory, e.g. `node dist
 - `print` - calls `console.log` behind the scenes
 - `concat` - concatenates many strings
 - Mathematical operators (`+`, `-`, `*`, `/`, `pow`)
-- Comparator operators (`>`, `<`, `>=`, `<=`, `=`)
+- Comparator operators (`>`, `<`, `>=`, `<=`, `=`, `!=`)
+- Boolean operators (`or`, `and`, `xor`, `not`)
 
 ### Data types
 
-- Integers (backed by JS numbers. no support for decimals yet)
-- Strings (enclosed in double quotes)
+- Integers
+- Strings
+- Booleans
+- Nil (`undefined`)
+
+All are backed by the JS equivalent.
 
 ### Functions
 
