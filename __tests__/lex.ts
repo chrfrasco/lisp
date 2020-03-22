@@ -89,8 +89,8 @@ test("handles keywords", () => {
   expect(lex(input)).toEqual(output);
 });
 
-test.each(["((", "))"])("can lex input that cannot be parsed (%s)", input => {
-  expect(lex(input)).toBeDefined();
+test.each(["((", "))"])("should reject %s due to unbalanced brackets", input => {
+  expect(() => lex(input)).toThrow();
 });
 
 test.each([
