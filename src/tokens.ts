@@ -1,7 +1,21 @@
 import { Keyword } from "./keywords";
 import { Location } from "./reader";
 
-export type OperatorChar = "+" | "-" | "*" | "/";
+export type OperatorChar = "+" | "-" | "*" | "/" | '>' | '<' | '>=' | '<=' | '=';
+
+// hack to get an exhaustive array over a union
+const _operatorChars: Record<OperatorChar, null> = {
+  '+': null,
+  '-': null,
+  '*': null,
+  '/': null,
+  '>': null,
+  '<': null,
+  '>=': null,
+  '<=': null,
+  '=': null,
+};
+export const operatorChars = Object.keys(_operatorChars);
 
 export type ParenChar = '(' | ')' | '[' | ']';
 

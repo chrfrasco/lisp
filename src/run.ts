@@ -12,7 +12,7 @@ import {
   RuntimeValueBuilders,
   RuntimeValue,
   RuntimeFunctionValue,
-  MismatchedTypesError,
+  WrongTypeError,
 } from "./scope";
 import { ErrorAtLocation } from "./error_at_location";
 
@@ -52,7 +52,8 @@ export default function run(
       try {
         return fn.value.apply(null, params);
       } catch (error) {
-        if (error instanceof MismatchedTypesError) {
+        if (error instanceof WrongTypeError) {
+          // TODO(christianscott): annoatate the bad parameter
           throw new RuntimeTypeError(error.value, node);
         } else {
           throw error;

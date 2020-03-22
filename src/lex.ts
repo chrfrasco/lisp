@@ -1,6 +1,6 @@
 import { isKeyword } from "./keywords";
 import { Reader, Location } from "./reader";
-import { Token, TokenBuilders, OperatorChar, ParenChar } from "./tokens";
+import { Token, TokenBuilders, OperatorChar, ParenChar, operatorChars, OperatorToken } from "./tokens";
 import { ErrorAtLocation } from "./error_at_location";
 
 export default function lex(source: string): Token[] {
@@ -49,8 +49,9 @@ export default function lex(source: string): Token[] {
     }
 
     if (isOperator(char)) {
-      tokens.push(TokenBuilders.operator(char, reader.currentLocation()));
-      reader.next();
+      const location = reader.currentLocation();
+      const operator = reader.takeCharsWhile(isOperator) as OperatorChar;
+      tokens.push(TokenBuilders.operator(operator, location));
       continue;
     }
 
@@ -117,7 +118,6 @@ function isNumeric(s: string): boolean {
   return /[0-9]/.test(s);
 }
 
-const operatorChars: string[] = ["+", "-", "*", "/"];
 function isOperator(s: string): s is OperatorChar {
   return operatorChars.includes(s);
 }

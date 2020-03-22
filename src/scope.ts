@@ -77,13 +77,16 @@ export class Scope {
     // prettier-ignore
     return new Scope([
       ['nil', RuntimeValueBuilders.nil()],
+      ['true', RuntimeValueBuilders.bool(true)],
+      ['false', RuntimeValueBuilders.bool(false)],
+
       ["print", RuntimeValueBuilders.function('print', (...args) => {
         console.log(...(args.map(RuntimeValues.jsPrimitiveFor)));
         return RuntimeValueBuilders.nil();
       })],
       ["concat", RuntimeValueBuilders.function('concat', (...args) => {
         for (const arg of args) {
-          MismatchedTypesError.assertTypes(
+          WrongTypeError.assertIs(
             RuntimeValueKind.STRING,
             arg,
             'concat expects all args to be strings',
@@ -143,8 +146,8 @@ function makeNumberOperator(
   const fn = RuntimeValueBuilders.function(
     name,
     (a: RuntimeValue, b: RuntimeValue) => {
-      MismatchedTypesError.assertTypes(RuntimeValueKind.NUMBER, a, `expected a to be a number`);
-      MismatchedTypesError.assertTypes(RuntimeValueKind.NUMBER, b, `expected b to be a number`);
+      WrongTypeError.assertIs(RuntimeValueKind.NUMBER, a, `expected a to be a number`);
+      WrongTypeError.assertIs(RuntimeValueKind.NUMBER, b, `expected b to be a number`);
       return RuntimeValueBuilders.number(op(a.value, b.value));
     }
   );
@@ -158,6 +161,7 @@ function makeComparisonOperators(
   const fn = RuntimeValueBuilders.function(
     name,
     (a: RuntimeValue, b: RuntimeValue) => {
+      WrongTypeError.assertSameType(a, b);
       const valueA = RuntimeValues.jsPrimitiveFor(a);
       const valueB = RuntimeValues.jsPrimitiveFor(b);
       return RuntimeValueBuilders.bool(op(valueA, valueB));
@@ -166,18 +170,24 @@ function makeComparisonOperators(
   return [name, fn];
 }
 
-export class MismatchedTypesError extends Error {
+export class WrongTypeError extends Error {
   constructor(message: string, readonly value: RuntimeValue) {
     super(message);
   }
 
-  static assertTypes<K extends RuntimeValueKind>(
+  static assertIs<K extends RuntimeValueKind>(
     expectedKind: K,
     value: RuntimeValue,
     message: string
   ): asserts value is Extract<RuntimeValue, { kind: K }> {
     if (value.kind !== expectedKind) {
-      throw new MismatchedTypesError(message, value);
+      throw new WrongTypeError(message, value);
+    }
+  }
+
+  static assertSameType(valueA: RuntimeValue, valueB: RuntimeValue) {
+    if (valueA.kind !== valueB.kind) {
+      throw new WrongTypeError('mismatched types', valueA);
     }
   }
 }

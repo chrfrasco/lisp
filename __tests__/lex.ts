@@ -1,5 +1,5 @@
 import lex, { LexError } from "../src/lex";
-import { TokenBuilders } from "../src/tokens";
+import { TokenBuilders, operatorChars } from "../src/tokens";
 import { ImmutableLocation } from "../src/reader";
 import { createBuilderWithLocation } from "../src/test_helpers/create_builder_with_location";
 
@@ -100,6 +100,15 @@ test("handles fn keyword with no args", () => {
   expect(lex(input)).toEqual(output);
 });
 
+test.each(operatorChars)('should lex operator %s', (op) => {
+  expect(lex(`(${op})`)).toEqual([
+    TokWithLoc.paren('('),
+    TokWithLoc.operator(op),
+    TokWithLoc.paren(')'),
+  ])
+});
+
+// TODO(christianscott): these shouldn't fail to lex. should instead fail to parse
 test.skip.each(["((", "))"])(
   "should reject %s due to unbalanced brackets",
   input => {
