@@ -12,9 +12,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - uses: Borales/actions-yarn@v2.1.0
+    - name: Install deps
+      uses: actions/setup-node@v1
       with:
-        cmd: install
-    - uses: Borales/actions-yarn@v2.1.0
-      with:
-        cmd: check
+        node-version: '10.x'
+    - name: Check formatting
+      run: npm run format -- --check
+    - name: Build typescript
+      run: npm run build
+    - name: Run tests
+      run: npm run test
