@@ -19,7 +19,7 @@ test("transforms string into an array of tokens", () => {
     TokWithLoc.operator("+"),
     TokWithLoc.number("1"),
     TokWithLoc.number("10"),
-    TokWithLoc.paren(")")
+    TokWithLoc.paren(")"),
   ];
   expect(lex(input)).toEqual(output);
 });
@@ -31,7 +31,7 @@ test("handles alphanumeric values", () => {
     TokWithLoc.identifier("div"),
     TokWithLoc.number("10"),
     TokWithLoc.number("5"),
-    TokWithLoc.paren(")")
+    TokWithLoc.paren(")"),
   ];
   expect(lex(input)).toEqual(output);
 });
@@ -42,7 +42,7 @@ test("handles strings (single quotes)", () => {
     TokWithLoc.paren("("),
     TokWithLoc.identifier("print"),
     TokWithLoc.string("hello, world"),
-    TokWithLoc.paren(")")
+    TokWithLoc.paren(")"),
   ];
   expect(lex(input)).toEqual(output);
 });
@@ -53,7 +53,7 @@ test("handles strings (double quotes)", () => {
     TokWithLoc.paren("("),
     TokWithLoc.identifier("print"),
     TokWithLoc.string("hello, world"),
-    TokWithLoc.paren(")")
+    TokWithLoc.paren(")"),
   ];
   expect(lex(input)).toEqual(output);
 });
@@ -65,7 +65,7 @@ test("handles def keyword", () => {
     TokWithLoc.keyword("def"),
     TokWithLoc.identifier("x"),
     TokWithLoc.number("1"),
-    TokWithLoc.paren(")")
+    TokWithLoc.paren(")"),
   ];
   expect(lex(input)).toEqual(output);
 });
@@ -81,7 +81,7 @@ test("handles fn keyword with two args", () => {
     TokWithLoc.identifier("y"),
     TokWithLoc.paren("]"),
     TokWithLoc.number("1"),
-    TokWithLoc.paren(")")
+    TokWithLoc.paren(")"),
   ];
   expect(lex(input)).toEqual(output);
 });
@@ -95,23 +95,23 @@ test("handles fn keyword with no args", () => {
     TokWithLoc.paren("["),
     TokWithLoc.paren("]"),
     TokWithLoc.number("1"),
-    TokWithLoc.paren(")")
+    TokWithLoc.paren(")"),
   ];
   expect(lex(input)).toEqual(output);
 });
 
-test.each(operators)('should lex operator %s', (op) => {
+test.each(operators)("should lex operator %s", (op) => {
   expect(lex(`(${op})`)).toEqual([
-    TokWithLoc.paren('('),
+    TokWithLoc.paren("("),
     TokWithLoc.operator(op),
-    TokWithLoc.paren(')'),
-  ])
+    TokWithLoc.paren(")"),
+  ]);
 });
 
 // TODO(christianscott): these shouldn't fail to lex. should instead fail to parse
 test.skip.each(["((", "))"])(
   "should reject %s due to unbalanced brackets",
-  input => {
+  (input) => {
     expect(() => lex(input)).toThrow();
   }
 );
@@ -119,7 +119,7 @@ test.skip.each(["((", "))"])(
 test.each([
   ["$", "$", [0, 0, 0]],
   ["^", "^", [0, 0, 0]],
-  ["(def thing $)", "$", [11, 11, 0]]
+  ["(def thing $)", "$", [11, 11, 0]],
 ] as [string, string, [number, number, number]][])(
   "should reject invalid char %s at location (%d, %d, %d)",
   (input, char, location) => {
@@ -138,7 +138,7 @@ describe("Token.location", () => {
     const output = [
       TokenBuilders.paren("(", loc(0, 0, 0)),
       TokenBuilders.identifier("x", loc(1, 1, 0)),
-      TokenBuilders.paren(")", loc(2, 2, 0))
+      TokenBuilders.paren(")", loc(2, 2, 0)),
     ];
     expect(lex(input)).toEqual(output);
   });
@@ -152,7 +152,7 @@ describe("Token.location", () => {
       TokenBuilders.newline(loc(0, 0, 0)),
       TokenBuilders.paren("(", loc(1, 0, 1)),
       TokenBuilders.identifier("x", loc(2, 1, 1)),
-      TokenBuilders.paren(")", loc(3, 2, 1))
+      TokenBuilders.paren(")", loc(3, 2, 1)),
     ]);
   });
 
@@ -163,7 +163,7 @@ describe("Token.location", () => {
       TokenBuilders.keyword("def", loc(1, 1, 0)),
       TokenBuilders.identifier("x", loc(5, 5, 0)),
       TokenBuilders.number("1", loc(7, 7, 0)),
-      TokenBuilders.paren(")", loc(8, 8, 0))
+      TokenBuilders.paren(")", loc(8, 8, 0)),
     ];
     expect(lex(input)).toEqual(output);
   });
@@ -178,7 +178,7 @@ describe("Token.location", () => {
       TokenBuilders.identifier("x", loc(7, 7, 0)),
       TokenBuilders.paren("]", loc(8, 8, 0)),
       TokenBuilders.number("1", loc(10, 10, 0)),
-      TokenBuilders.paren(")", loc(11, 11, 0))
+      TokenBuilders.paren(")", loc(11, 11, 0)),
     ];
     expect(lex(input)).toEqual(output);
   });
@@ -194,7 +194,7 @@ describe("Token.location", () => {
       TokenBuilders.identifier("y", loc(9, 9, 0)),
       TokenBuilders.paren("]", loc(10, 10, 0)),
       TokenBuilders.number("1", loc(12, 12, 0)),
-      TokenBuilders.paren(")", loc(13, 13, 0))
+      TokenBuilders.paren(")", loc(13, 13, 0)),
     ];
     expect(lex(input)).toEqual(output);
   });
@@ -216,7 +216,7 @@ describe("Token.location", () => {
 
       TokenBuilders.paren("(", loc(8, 0, 2)),
       TokenBuilders.identifier("z", loc(9, 1, 2)),
-      TokenBuilders.paren(")", loc(10, 2, 2))
+      TokenBuilders.paren(")", loc(10, 2, 2)),
     ];
     expect(lex(input)).toEqual(output);
   });

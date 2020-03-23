@@ -3,7 +3,7 @@ import {
   TokenKind,
   KeywordToken,
   IdentifierToken,
-  OperatorToken
+  OperatorToken,
 } from "./tokens";
 import { UnreachableError } from "./preconditions";
 import { ErrorAtLocation } from "./error_at_location";
@@ -16,7 +16,7 @@ export enum ASTNodeKind {
   CALL_EXPRESSION = "CALL_EXPRESSION",
   VARIABLE_ASSIGNMENT = "VARIABLE_ASSIGNMENT",
   FUNCTION_DECLARATION = "FUNCTION_DECLARATION",
-  IDENTIFIER = "IDENTIFIER"
+  IDENTIFIER = "IDENTIFIER",
 }
 
 export type ASTNode = { location: Location } & (
@@ -93,9 +93,9 @@ export const ASTNodeBuilders = {
       location,
       name,
       params,
-      body
+      body,
     };
-  }
+  },
 };
 
 export class ParseError extends ErrorAtLocation {
@@ -168,7 +168,11 @@ export default function parse(tokens: readonly Token[]) {
     }
     const name = token.value;
     current++;
-    const node = ASTNodeBuilders.variableAssignment(name, walk(), token.location);
+    const node = ASTNodeBuilders.variableAssignment(
+      name,
+      walk(),
+      token.location
+    );
     current++;
     return node;
   }
@@ -181,7 +185,7 @@ export default function parse(tokens: readonly Token[]) {
     const name = token.value;
 
     token = tokens[++current];
-    if (!(token.type === TokenKind.PAREN && token.value === '[')) {
+    if (!(token.type === TokenKind.PAREN && token.value === "[")) {
       throw new ParseError(token);
     }
 
@@ -192,7 +196,7 @@ export default function parse(tokens: readonly Token[]) {
       token = tokens[++current];
     }
 
-    if (!(token.type === TokenKind.PAREN && token.value === ']')) {
+    if (!(token.type === TokenKind.PAREN && token.value === "]")) {
       throw new ParseError(token);
     }
     current++;

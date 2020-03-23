@@ -2,7 +2,7 @@ export type Keyword = "fn" | "def";
 
 const allKeywords: Record<Keyword, null> = {
   fn: null,
-  def: null
+  def: null,
 };
 
 const keywords = new Set(Object.keys(allKeywords));

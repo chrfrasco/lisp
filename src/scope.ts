@@ -38,8 +38,8 @@ export const RuntimeValueBuilders = {
     return { kind: RuntimeValueKind.NIL };
   },
   bool(value: boolean): RuntimeValue {
-    return { kind: RuntimeValueKind.BOOL, value }
-  }
+    return { kind: RuntimeValueKind.BOOL, value };
+  },
 };
 
 export const RuntimeValues = {
@@ -63,7 +63,7 @@ export const RuntimeValues = {
       default:
         throw new UnreachableError(value);
     }
-  }
+  },
 };
 
 export class Scope {
@@ -165,8 +165,16 @@ function makeNumberOperator(
   const fn = RuntimeValueBuilders.function(
     name,
     (a: RuntimeValue, b: RuntimeValue) => {
-      WrongTypeError.assertIs(RuntimeValueKind.NUMBER, a, `expected a to be a number`);
-      WrongTypeError.assertIs(RuntimeValueKind.NUMBER, b, `expected b to be a number`);
+      WrongTypeError.assertIs(
+        RuntimeValueKind.NUMBER,
+        a,
+        `expected a to be a number`
+      );
+      WrongTypeError.assertIs(
+        RuntimeValueKind.NUMBER,
+        b,
+        `expected b to be a number`
+      );
       return RuntimeValueBuilders.number(op(a.value, b.value));
     }
   );
@@ -196,8 +204,16 @@ function makeBooleanOperator(
   const fn = RuntimeValueBuilders.function(
     name,
     (a: RuntimeValue, b: RuntimeValue) => {
-      WrongTypeError.assertIs(RuntimeValueKind.BOOL, a, `expected a to be a boolean`);
-      WrongTypeError.assertIs(RuntimeValueKind.BOOL, b, `expected b to be a boolean`);
+      WrongTypeError.assertIs(
+        RuntimeValueKind.BOOL,
+        a,
+        `expected a to be a boolean`
+      );
+      WrongTypeError.assertIs(
+        RuntimeValueKind.BOOL,
+        b,
+        `expected b to be a boolean`
+      );
       return RuntimeValueBuilders.bool(op(a.value, b.value));
     }
   );
@@ -221,7 +237,7 @@ export class WrongTypeError extends Error {
 
   static assertSameType(valueA: RuntimeValue, valueB: RuntimeValue) {
     if (valueA.kind !== valueB.kind) {
-      throw new WrongTypeError('mismatched types', valueA);
+      throw new WrongTypeError("mismatched types", valueA);
     }
   }
 }

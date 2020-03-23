@@ -14,7 +14,7 @@ export function createBuilderWithLocation<B extends Builder<string, any>>(
           return (...args: any[]) => builder[prop](...args, location);
         }
         throw new TypeError(`no builder with name ${prop}`);
-      }
+      },
     }
   );
 }

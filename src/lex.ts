@@ -1,6 +1,14 @@
 import { isKeyword } from "./keywords";
 import { Reader, Location } from "./reader";
-import { Token, TokenBuilders, Operator, ParenChar, operatorChars, OperatorToken, operators } from "./tokens";
+import {
+  Token,
+  TokenBuilders,
+  Operator,
+  ParenChar,
+  operatorChars,
+  OperatorToken,
+  operators,
+} from "./tokens";
 import { ErrorAtLocation } from "./error_at_location";
 
 export default function lex(source: string): Token[] {
@@ -51,7 +59,10 @@ export default function lex(source: string): Token[] {
     if (isOperatorChar(char)) {
       const location = reader.currentLocation();
       const operator = reader.takeCharsWhile((char, value) => {
-        return isOperatorChar(char) && operators.some(operator => operator.startsWith(value));
+        return (
+          isOperatorChar(char) &&
+          operators.some((operator) => operator.startsWith(value))
+        );
       });
       if (!isOperator(operator)) {
         // TODO(christianscott): the error produced here is not clear enough
@@ -67,7 +78,7 @@ export default function lex(source: string): Token[] {
       const quoteKind = char;
       reader.next(); // skip open quote
 
-      const value = reader.takeCharsWhile(s => s !== quoteKind);
+      const value = reader.takeCharsWhile((s) => s !== quoteKind);
       tokens.push(TokenBuilders.string(value, location));
 
       if (reader.peek() !== quoteKind) {
@@ -96,17 +107,17 @@ export class LexError extends ErrorAtLocation {
 
 export class UnexpectedEndOfInputError extends ErrorAtLocation {
   constructor(location: Location) {
-    super('unexpected end of input', location);
+    super("unexpected end of input", location);
   }
 }
 
-const parenChars = ['(', ')', '[', ']'];
+const parenChars = ["(", ")", "[", "]"];
 function isParen(s: string): s is ParenChar {
   return parenChars.includes(s);
 }
 
-function isOpeningParen(s: ParenChar): s is '(' | '[' {
-  return s === '(' || s === '[';
+function isOpeningParen(s: ParenChar): s is "(" | "[" {
+  return s === "(" || s === "[";
 }
 
 function isWhitespace(s: string): boolean {

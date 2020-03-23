@@ -43,17 +43,17 @@ test("function calls with arguments", () => {
 });
 
 describe("Scope.prelude", () => {
-  test('nil', () => {
+  test("nil", () => {
     expect(evaluate(`nil`)).toEqual(RuntimeValueBuilders.nil());
-  })
+  });
 
-  test('true', () => {
+  test("true", () => {
     expect(evaluate(`true`)).toEqual(RuntimeValueBuilders.bool(true));
-  })
+  });
 
-  test('false', () => {
+  test("false", () => {
     expect(evaluate(`false`)).toEqual(RuntimeValueBuilders.bool(false));
-  })
+  });
 
   test("concat", () => {
     expect(evaluate(`(concat "hello" ", " "world" "!")`)).toEqual(
@@ -61,7 +61,7 @@ describe("Scope.prelude", () => {
     );
   });
 
-  describe('numeric operators', () => {
+  describe("numeric operators", () => {
     test("+", () => {
       expect(evaluate(`(+ 1 1)`)).toEqual(RuntimeValueBuilders.number(2));
     });
@@ -81,31 +81,31 @@ describe("Scope.prelude", () => {
     test("pow", () => {
       expect(evaluate(`(pow 10 2)`)).toEqual(RuntimeValueBuilders.number(100));
     });
-  })
+  });
 
-  describe('comparison operators', () => {
-    test('>', () => {
-      expect(evaluate('(> 1 0)')).toEqual(RuntimeValueBuilders.bool(true));
+  describe("comparison operators", () => {
+    test(">", () => {
+      expect(evaluate("(> 1 0)")).toEqual(RuntimeValueBuilders.bool(true));
     });
 
-    test('<', () => {
-      expect(evaluate('(< 1 0)')).toEqual(RuntimeValueBuilders.bool(false));
+    test("<", () => {
+      expect(evaluate("(< 1 0)")).toEqual(RuntimeValueBuilders.bool(false));
     });
 
-    test('>=', () => {
-      expect(evaluate('(>= 1 0)')).toEqual(RuntimeValueBuilders.bool(true));
+    test(">=", () => {
+      expect(evaluate("(>= 1 0)")).toEqual(RuntimeValueBuilders.bool(true));
     });
 
-    test('<=', () => {
-      expect(evaluate('(<= 1 0)')).toEqual(RuntimeValueBuilders.bool(false));
+    test("<=", () => {
+      expect(evaluate("(<= 1 0)")).toEqual(RuntimeValueBuilders.bool(false));
     });
 
-    test('=', () => {
-      expect(evaluate('(= 1 0)')).toEqual(RuntimeValueBuilders.bool(false));
+    test("=", () => {
+      expect(evaluate("(= 1 0)")).toEqual(RuntimeValueBuilders.bool(false));
     });
 
-    test('!=', () => {
-      expect(evaluate('(!= 1 0)')).toEqual(RuntimeValueBuilders.bool(true));
+    test("!=", () => {
+      expect(evaluate("(!= 1 0)")).toEqual(RuntimeValueBuilders.bool(true));
     });
   });
 });

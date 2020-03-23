@@ -1,25 +1,35 @@
 import { Keyword } from "./keywords";
 import { Location } from "./reader";
 
-export type Operator = "+" | "-" | "*" | "/" | '>' | '<' | '>=' | '<=' | '=' | '!=';
+export type Operator =
+  | "+"
+  | "-"
+  | "*"
+  | "/"
+  | ">"
+  | "<"
+  | ">="
+  | "<="
+  | "="
+  | "!=";
 
 // hack to get an exhaustive array over a union
 const _operators: Record<Operator, null> = {
-  '+': null,
-  '-': null,
-  '*': null,
-  '/': null,
-  '>': null,
-  '<': null,
-  '>=': null,
-  '<=': null,
-  '=': null,
-  '!=': null,
+  "+": null,
+  "-": null,
+  "*": null,
+  "/": null,
+  ">": null,
+  "<": null,
+  ">=": null,
+  "<=": null,
+  "=": null,
+  "!=": null,
 };
 export const operators = Object.keys(_operators);
-export const operatorChars = new Set(operators.join('').split(''));
+export const operatorChars = new Set(operators.join("").split(""));
 
-export type ParenChar = '(' | ')' | '[' | ']';
+export type ParenChar = "(" | ")" | "[" | "]";
 
 export enum TokenKind {
   NUMBER = "NUMBER",
@@ -28,7 +38,7 @@ export enum TokenKind {
   OPERATOR = "OPERATOR",
   IDENTIFIER = "IDENTIFIER",
   KEYWORD = "KEYWORD",
-  NEWLINE = "NEWLINE"
+  NEWLINE = "NEWLINE",
 }
 
 export type Token = { location: Location } & (
@@ -68,5 +78,5 @@ export const TokenBuilders = {
   },
   newline(location: Location): Token {
     return { type: TokenKind.NEWLINE, location };
-  }
+  },
 };

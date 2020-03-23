@@ -3,7 +3,7 @@ import {
   ASTNodeKind,
   FunctionDeclarationNode,
   CallExpressionNode,
-  IdentifierNode
+  IdentifierNode,
 } from "./parse";
 import { UnreachableError } from "./preconditions";
 import {
@@ -22,7 +22,7 @@ export default function run(
 ): RuntimeValue {
   switch (node.type) {
     case ASTNodeKind.PROGRAM: {
-      const result = node.body.map(childNode => run(childNode, scope));
+      const result = node.body.map((childNode) => run(childNode, scope));
       return result[result.length - 1];
     }
 
@@ -38,7 +38,7 @@ export default function run(
     }
 
     case ASTNodeKind.CALL_EXPRESSION: {
-      const params = node.params.map(param => run(param, scope));
+      const params = node.params.map((param) => run(param, scope));
       const fn = scope.get(node.name);
 
       if (fn == null) {

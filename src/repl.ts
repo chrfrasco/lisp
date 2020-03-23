@@ -6,7 +6,7 @@ import { ErrorAtLocation } from "./error_at_location";
 export function repl() {
   const lineReader = readline.createInterface({
     input: process.stdin,
-    output: process.stdout
+    output: process.stdout,
   });
 
   const scope = Scope.prelude();
@@ -14,7 +14,7 @@ export function repl() {
   ask();
 
   function ask() {
-    lineReader.question("> ", answer => {
+    lineReader.question("> ", (answer) => {
       if (answer === ".exit") {
         process.exit(0);
       }

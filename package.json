@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "format": "prettier --write src/**/*.ts __tests__/**/*.ts",
+    "format": "prettier --write src/*.ts src/**/*.ts",
     "check": "npm run build && npm run test && npm format --check"
   },
   "devDependencies": {
@@ -17,7 +17,7 @@
     "@types/node": "^13.9.2",
     "babel-jest": "^25.1.0",
     "jest": "^25.1.0",
-    "prettier": "^1.19.1",
+    "prettier": "^2.0.1",
     "ts-node": "^8.7.0",
     "typescript": "^3.8.3"
   }
