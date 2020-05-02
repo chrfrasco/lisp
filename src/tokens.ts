@@ -42,7 +42,7 @@ export enum TokenKind {
 }
 
 export type Token = { location: Location } & (
-  | { type: TokenKind.NUMBER; value: string }
+  | { type: TokenKind.NUMBER; value: number }
   | { type: TokenKind.STRING; value: string }
   | { type: TokenKind.IDENTIFIER; value: string }
   | { type: TokenKind.PAREN; value: ParenChar }
@@ -61,7 +61,7 @@ export const TokenBuilders = {
   paren(value: ParenChar, location: Location): Token {
     return { type: TokenKind.PAREN, location, value };
   },
-  number(value: string, location: Location): Token {
+  number(value: number, location: Location): Token {
     return { type: TokenKind.NUMBER, location, value };
   },
   operator(value: Operator, location: Location): Token {

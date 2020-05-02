@@ -17,8 +17,8 @@ test("transforms string into an array of tokens", () => {
   const output = [
     TokWithLoc.paren("("),
     TokWithLoc.operator("+"),
-    TokWithLoc.number("1"),
-    TokWithLoc.number("10"),
+    TokWithLoc.number(1),
+    TokWithLoc.number(10),
     TokWithLoc.paren(")"),
   ];
   expect(lex(input)).toEqual(output);
@@ -29,8 +29,8 @@ test("handles alphanumeric values", () => {
   const output = [
     TokWithLoc.paren("("),
     TokWithLoc.identifier("div"),
-    TokWithLoc.number("10"),
-    TokWithLoc.number("5"),
+    TokWithLoc.number(10),
+    TokWithLoc.number(5),
     TokWithLoc.paren(")"),
   ];
   expect(lex(input)).toEqual(output);
@@ -64,7 +64,7 @@ test("handles def keyword", () => {
     TokWithLoc.paren("("),
     TokWithLoc.keyword("def"),
     TokWithLoc.identifier("x"),
-    TokWithLoc.number("1"),
+    TokWithLoc.number(1),
     TokWithLoc.paren(")"),
   ];
   expect(lex(input)).toEqual(output);
@@ -80,7 +80,7 @@ test("handles fn keyword with two args", () => {
     TokWithLoc.identifier("x"),
     TokWithLoc.identifier("y"),
     TokWithLoc.paren("]"),
-    TokWithLoc.number("1"),
+    TokWithLoc.number(1),
     TokWithLoc.paren(")"),
   ];
   expect(lex(input)).toEqual(output);
@@ -94,7 +94,7 @@ test("handles fn keyword with no args", () => {
     TokWithLoc.identifier("foo"),
     TokWithLoc.paren("["),
     TokWithLoc.paren("]"),
-    TokWithLoc.number("1"),
+    TokWithLoc.number(1),
     TokWithLoc.paren(")"),
   ];
   expect(lex(input)).toEqual(output);
@@ -162,7 +162,7 @@ describe("Token.location", () => {
       TokenBuilders.paren("(", loc(0, 0, 0)),
       TokenBuilders.keyword("def", loc(1, 1, 0)),
       TokenBuilders.identifier("x", loc(5, 5, 0)),
-      TokenBuilders.number("1", loc(7, 7, 0)),
+      TokenBuilders.number(1, loc(7, 7, 0)),
       TokenBuilders.paren(")", loc(8, 8, 0)),
     ];
     expect(lex(input)).toEqual(output);
@@ -177,7 +177,7 @@ describe("Token.location", () => {
       TokenBuilders.paren("[", loc(6, 6, 0)),
       TokenBuilders.identifier("x", loc(7, 7, 0)),
       TokenBuilders.paren("]", loc(8, 8, 0)),
-      TokenBuilders.number("1", loc(10, 10, 0)),
+      TokenBuilders.number(1, loc(10, 10, 0)),
       TokenBuilders.paren(")", loc(11, 11, 0)),
     ];
     expect(lex(input)).toEqual(output);
@@ -193,7 +193,7 @@ describe("Token.location", () => {
       TokenBuilders.identifier("x", loc(7, 7, 0)),
       TokenBuilders.identifier("y", loc(9, 9, 0)),
       TokenBuilders.paren("]", loc(10, 10, 0)),
-      TokenBuilders.number("1", loc(12, 12, 0)),
+      TokenBuilders.number(1, loc(12, 12, 0)),
       TokenBuilders.paren(")", loc(13, 13, 0)),
     ];
     expect(lex(input)).toEqual(output);

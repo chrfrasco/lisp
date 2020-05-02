@@ -37,10 +37,10 @@ export type ASTNode = { location: Location } & (
   | {
       type:
         | ASTNodeKind.STRING_LITERAL
-        | ASTNodeKind.NUMBER_LITERAL
         | ASTNodeKind.BOOLEAN_LITERAL;
       value: string;
     }
+  | { type: ASTNodeKind.NUMBER_LITERAL, value: number }
   | {
       type: ASTNodeKind.IDENTIFIER;
       value: string;
@@ -80,7 +80,7 @@ export const ASTNodeBuilders = {
   stringLiteral(value: string, location: Location): ASTNode {
     return { type: ASTNodeKind.STRING_LITERAL, location, value };
   },
-  numberLiteral(value: string, location: Location): ASTNode {
+  numberLiteral(value: number, location: Location): ASTNode {
     return { type: ASTNodeKind.NUMBER_LITERAL, location, value };
   },
   booleanLiteral(value: string, location: Location): ASTNode {

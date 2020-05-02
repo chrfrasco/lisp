@@ -27,15 +27,15 @@ test("runs a full program", () => {
 
 test("adds two numbers", () => {
   const program = ASTNodesWithLoc.callExpression("+", [
-    ASTNodesWithLoc.numberLiteral("1"),
-    ASTNodesWithLoc.numberLiteral("1"),
+    ASTNodesWithLoc.numberLiteral(1),
+    ASTNodesWithLoc.numberLiteral(1),
   ]);
   expect(run(program)).toEqual(RuntimeValueBuilders.number(2));
 });
 
 test("can assign variables", () => {
   const program = ASTNodesWithLoc.program([
-    ASTNodesWithLoc.variableAssignment("x", ASTNodesWithLoc.numberLiteral("1")),
+    ASTNodesWithLoc.variableAssignment("x", ASTNodesWithLoc.numberLiteral(1)),
   ]);
   const scope = new Scope();
   run(program, scope);
@@ -56,8 +56,8 @@ test("function declaration", () => {
     ),
     ASTNodesWithLoc.callExpression("print", [
       ASTNodesWithLoc.callExpression("add", [
-        ASTNodesWithLoc.numberLiteral("1"),
-        ASTNodesWithLoc.numberLiteral("1"),
+        ASTNodesWithLoc.numberLiteral(1),
+        ASTNodesWithLoc.numberLiteral(1),
       ]),
     ]),
   ]);
@@ -105,7 +105,7 @@ test("throws when trying to call something that is not callable", () => {
 test("throws when there is a type mismatch at runtime", () => {
   const callExpr = ASTNodeBuilders.callExpression(
     "concat",
-    [ASTNodesWithLoc.numberLiteral("1")],
+    [ASTNodesWithLoc.numberLiteral(1)],
     new ImmutableLocation(10, 0, 1)
   );
   const program = ASTNodesWithLoc.program([callExpr]);

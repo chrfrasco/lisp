@@ -6,7 +6,6 @@ import {
   Operator,
   ParenChar,
   operatorChars,
-  OperatorToken,
   operators,
 } from "./tokens";
 import { ErrorAtLocation } from "./error_at_location";
@@ -33,7 +32,8 @@ export default function lex(source: string): Token[] {
     if (isNumeric(char)) {
       const location = reader.currentLocation();
       const value = reader.takeCharsWhile(isNumeric);
-      tokens.push(TokenBuilders.number(value, location));
+      const num = parseInt(value, 10);
+      tokens.push(TokenBuilders.number(num, location));
       continue;
     }
 

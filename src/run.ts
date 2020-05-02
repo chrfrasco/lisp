@@ -72,7 +72,7 @@ export default function run(
     }
 
     case ASTNodeKind.NUMBER_LITERAL: {
-      return RuntimeValueBuilders.number(parseInt(node.value, 10));
+      return RuntimeValueBuilders.number(node.value);
     }
 
     case ASTNodeKind.STRING_LITERAL: {

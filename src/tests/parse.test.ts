@@ -241,7 +241,7 @@ test("rejects call expressions not using identifiers or operators", () => {
     TokWithLoc.paren(")"),
   ];
   err = new ParseError(
-    TokenBuilders.number("1", new ImmutableLocation(1, 1, 0))
+    TokenBuilders.number(1, new ImmutableLocation(1, 1, 0))
   );
   expect(() => parse(input)).toThrowError(err);
 });
