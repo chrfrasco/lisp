@@ -13,6 +13,7 @@ export enum ASTNodeKind {
   PROGRAM = "PROGRAM",
   NUMBER_LITERAL = "NUMBER_LITERAL",
   STRING_LITERAL = "STRING_LITERAL",
+  BOOLEAN_LITERAL = "BOOLEAN_LITERAL",
   CALL_EXPRESSION = "CALL_EXPRESSION",
   VARIABLE_ASSIGNMENT = "VARIABLE_ASSIGNMENT",
   FUNCTION_DECLARATION = "FUNCTION_DECLARATION",
@@ -34,7 +35,10 @@ export type ASTNode = { location: Location } & (
       params: readonly ASTNode[];
     }
   | {
-      type: ASTNodeKind.STRING_LITERAL | ASTNodeKind.NUMBER_LITERAL;
+      type:
+        | ASTNodeKind.STRING_LITERAL
+        | ASTNodeKind.NUMBER_LITERAL
+        | ASTNodeKind.BOOLEAN_LITERAL;
       value: string;
     }
   | {
@@ -78,6 +82,9 @@ export const ASTNodeBuilders = {
   },
   numberLiteral(value: string, location: Location): ASTNode {
     return { type: ASTNodeKind.NUMBER_LITERAL, location, value };
+  },
+  booleanLiteral(value: string, location: Location): ASTNode {
+    return { type: ASTNodeKind.BOOLEAN_LITERAL, location, value };
   },
   identifier(value: string, location: Location): IdentifierNode {
     return { type: ASTNodeKind.IDENTIFIER, location, value };
