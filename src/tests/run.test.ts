@@ -112,3 +112,31 @@ test("throws when there is a type mismatch at runtime", () => {
     new RuntimeTypeError(numberValue, callExpr)
   );
 });
+
+test("lazy expressions", () => {
+  const program: ASTNode = ASTNodesWithLoc.program([
+    ASTNodesWithLoc.functionDeclaration(
+      "foo",
+      ["bar"],
+      ASTNodesWithLoc.callExpression("if", [
+        ASTNodesWithLoc.identifier("bar"),
+        ASTNodesWithLoc.callExpression("print", [
+          ASTNodesWithLoc.stringLiteral("yes")
+        ]),
+        ASTNodesWithLoc.callExpression("print", [
+          ASTNodesWithLoc.stringLiteral("no")
+        ]),
+      ]),
+    ),
+    ASTNodesWithLoc.callExpression("foo", [
+      ASTNodesWithLoc.booleanLiteral("true"),
+    ]),
+  ]);
+
+  const print = jest.fn();
+  const scope = Scope.forTesting(print);
+  run(program, scope);
+
+  expect(print).toHaveBeenCalledWith("yes");
+  expect(print).toHaveBeenCalledTimes(1);
+});
