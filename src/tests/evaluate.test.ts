@@ -42,6 +42,13 @@ test("function calls with arguments", () => {
   expect(print).toHaveBeenCalledWith("hello christian");
 });
 
+test("recursion", () => {
+  const program = `(fn i [a b] (if (= b 0) a (+ a (i a (- b 1)))))
+(i 1 0)`;
+  const result = evaluate(program, Scope.prelude());
+  expect(result).toEqual(RuntimeValueBuilders.number(1));
+});
+
 describe("Scope.prelude", () => {
   test("nil", () => {
     expect(evaluate(`nil`)).toEqual(RuntimeValueBuilders.nil());
