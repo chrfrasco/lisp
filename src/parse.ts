@@ -111,14 +111,14 @@ export class ParseError extends ErrorAtLocation {
   }
 }
 
-export default function parse(tokens: readonly Token[]) {
+export default function parse(tokensWithNewlines: readonly Token[]) {
+  // newline tokens offer no information about the program
+  // TODO: consider removing newline tokens altogether
+  const tokens = tokensWithNewlines.filter(token => token.type !== TokenKind.NEWLINE);
   let current = 0;
 
   function walk(): ASTNode {
     let token = tokens[current];
-    while (token.type === TokenKind.NEWLINE) {
-      token = tokens[++current];
-    }
 
     if (token.type === TokenKind.NUMBER) {
       current++;
@@ -239,8 +239,12 @@ export default function parse(tokens: readonly Token[]) {
     return ASTNodeBuilders.callExpression(name, params, location);
   }
 
+  function haveMoreTokens() {
+    return current < tokens.length;
+  }
+
   const body: ASTNode[] = [];
-  while (current < tokens.length) {
+  while (haveMoreTokens()) {
     body.push(walk());
   }
 

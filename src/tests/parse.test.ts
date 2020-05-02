@@ -17,6 +17,18 @@ test("handles empty list", () => {
   expect(parse([])).toEqual(ASTNodesWithLoc.program([]));
 });
 
+test("handles newlines", () => {
+  expect(parse([TokWithLoc.newline(), TokWithLoc.newline()])).toEqual(
+    ASTNodesWithLoc.program([])
+  );
+});
+
+test("handles trailing newlines", () => {
+  expect(parse([TokWithLoc.number(1), TokWithLoc.newline()])).toEqual(
+    ASTNodesWithLoc.program([ASTNodesWithLoc.numberLiteral(1)])
+  );
+});
+
 test("operators", () => {
   const input = [
     TokWithLoc.paren("("),
@@ -240,8 +252,6 @@ test("rejects call expressions not using identifiers or operators", () => {
     TokWithLoc.number("1"),
     TokWithLoc.paren(")"),
   ];
-  err = new ParseError(
-    TokenBuilders.number(1, new ImmutableLocation(1, 1, 0))
-  );
+  err = new ParseError(TokenBuilders.number(1, new ImmutableLocation(1, 1, 0)));
   expect(() => parse(input)).toThrowError(err);
 });
