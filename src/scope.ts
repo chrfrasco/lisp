@@ -76,7 +76,7 @@ export class Scope {
   }
 
   static fromRuntimeValues(variables: [string, RuntimeValue][]): Scope {
-    return new Scope(variables.map(([name, value]) => [name, () => value]))
+    return new Scope(variables.map(([name, value]) => [name, () => value]));
   }
 
   static prelude(): Scope {
@@ -144,7 +144,9 @@ export class Scope {
 
   static forTesting(printImpl: (...args$: any[]) => void): Scope {
     const printValue = RuntimeValueBuilders.function("print", (...args$) => {
-      printImpl(...args$.map(arg$ => arg$()).map(RuntimeValues.jsPrimitiveFor));
+      printImpl(
+        ...args$.map((arg$) => arg$()).map(RuntimeValues.jsPrimitiveFor)
+      );
       return RuntimeValueBuilders.nil();
     });
     return Scope.prelude().with([["print", () => printValue]]);
@@ -163,7 +165,7 @@ export class Scope {
   }
 
   assign(name: string, value: RuntimeValue | LazyRuntimeValue) {
-    this.variables.set(name, typeof value === 'function' ? value : () => value);
+    this.variables.set(name, typeof value === "function" ? value : () => value);
   }
 }
 
@@ -171,26 +173,23 @@ function makeNumberOperator(
   name: string,
   op: (a: number, b: number) => number
 ): [string, RuntimeFunctionValue] {
-  const fn = RuntimeValueBuilders.function(
-    name,
-    (a$, b$) => {
-      const a = a$();
-      const b = b$();
+  const fn = RuntimeValueBuilders.function(name, (a$, b$) => {
+    const a = a$();
+    const b = b$();
 
-      WrongTypeError.assertIs(
-        RuntimeValueKind.NUMBER,
-        a,
-        `expected a to be a number`
-      );
-      WrongTypeError.assertIs(
-        RuntimeValueKind.NUMBER,
-        b,
-        `expected b to be a number`
-      );
+    WrongTypeError.assertIs(
+      RuntimeValueKind.NUMBER,
+      a,
+      `expected a to be a number`
+    );
+    WrongTypeError.assertIs(
+      RuntimeValueKind.NUMBER,
+      b,
+      `expected b to be a number`
+    );
 
-      return RuntimeValueBuilders.number(op(a.value, b.value));
-    }
-  );
+    return RuntimeValueBuilders.number(op(a.value, b.value));
+  });
   return [name, fn];
 }
 
@@ -198,17 +197,14 @@ function makeComparisonOperator(
   name: string,
   op: (a: any, b: any) => boolean
 ): [string, RuntimeFunctionValue] {
-  const fn = RuntimeValueBuilders.function(
-    name,
-    (a$, b$) => {
-      const a = a$();
-      const b = b$();
-      WrongTypeError.assertSameType(a, b);
-      const valueA = RuntimeValues.jsPrimitiveFor(a);
-      const valueB = RuntimeValues.jsPrimitiveFor(b);
-      return RuntimeValueBuilders.bool(op(valueA, valueB));
-    }
-  );
+  const fn = RuntimeValueBuilders.function(name, (a$, b$) => {
+    const a = a$();
+    const b = b$();
+    WrongTypeError.assertSameType(a, b);
+    const valueA = RuntimeValues.jsPrimitiveFor(a);
+    const valueB = RuntimeValues.jsPrimitiveFor(b);
+    return RuntimeValueBuilders.bool(op(valueA, valueB));
+  });
   return [name, fn];
 }
 
@@ -216,24 +212,21 @@ function makeBooleanOperator(
   name: string,
   op: (a: boolean, b: boolean) => boolean
 ): [string, RuntimeFunctionValue] {
-  const fn = RuntimeValueBuilders.function(
-    name,
-    (a$, b$) => {
-      const a = a$();
-      const b = b$();
-      WrongTypeError.assertIs(
-        RuntimeValueKind.BOOL,
-        a,
-        `expected a to be a boolean`
-      );
-      WrongTypeError.assertIs(
-        RuntimeValueKind.BOOL,
-        b,
-        `expected b to be a boolean`
-      );
-      return RuntimeValueBuilders.bool(op(a.value, b.value));
-    }
-  );
+  const fn = RuntimeValueBuilders.function(name, (a$, b$) => {
+    const a = a$();
+    const b = b$();
+    WrongTypeError.assertIs(
+      RuntimeValueKind.BOOL,
+      a,
+      `expected a to be a boolean`
+    );
+    WrongTypeError.assertIs(
+      RuntimeValueKind.BOOL,
+      b,
+      `expected b to be a boolean`
+    );
+    return RuntimeValueBuilders.bool(op(a.value, b.value));
+  });
   return [name, fn];
 }
 

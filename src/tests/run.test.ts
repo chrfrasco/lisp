@@ -123,12 +123,12 @@ test("lazy expressions", () => {
       ASTNodesWithLoc.callExpression("if", [
         ASTNodesWithLoc.identifier("bar"),
         ASTNodesWithLoc.callExpression("print", [
-          ASTNodesWithLoc.stringLiteral("yes")
+          ASTNodesWithLoc.stringLiteral("yes"),
         ]),
         ASTNodesWithLoc.callExpression("print", [
-          ASTNodesWithLoc.stringLiteral("no")
+          ASTNodesWithLoc.stringLiteral("no"),
         ]),
-      ]),
+      ])
     ),
     ASTNodesWithLoc.callExpression("foo", [
       ASTNodesWithLoc.booleanLiteral("true"),
