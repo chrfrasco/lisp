@@ -13,6 +13,7 @@ import {
   RuntimeValue,
   RuntimeFunctionValue,
   WrongTypeError,
+  LazyRuntimeValue,
 } from "./scope";
 import { ErrorAtLocation } from "./error_at_location";
 
@@ -38,18 +39,19 @@ export default function run(
     }
 
     case ASTNodeKind.CALL_EXPRESSION: {
-      const params = node.params.map((param) => run(param, scope));
-      const fn = scope.get(node.name);
+      const fn$ = scope.get(node.name);
 
-      if (fn == null) {
+      if (fn$ == null) {
         throw new ReferenceError(node);
       }
 
+      const fn = fn$();
       if (fn.kind !== RuntimeValueKind.FUNCTION) {
         throw new NotCallableError(fn, node);
       }
 
       try {
+        const params = node.params.map((param) => () => run(param, scope));
         return fn.value.apply(null, params);
       } catch (error) {
         if (error instanceof WrongTypeError) {
@@ -62,11 +64,11 @@ export default function run(
     }
 
     case ASTNodeKind.IDENTIFIER: {
-      const value = scope.get(node.value);
-      if (value == null) {
+      const value$ = scope.get(node.value);
+      if (value$ == null) {
         throw new ReferenceError(node);
       }
-      return value;
+      return value$();
     }
 
     case ASTNodeKind.NUMBER_LITERAL: {
@@ -75,6 +77,10 @@ export default function run(
 
     case ASTNodeKind.STRING_LITERAL: {
       return RuntimeValueBuilders.string(node.value);
+    }
+
+    case ASTNodeKind.BOOLEAN_LITERAL: {
+      return RuntimeValueBuilders.bool(Boolean(node.value)); // TODO: parse bool
     }
 
     default:
@@ -106,7 +112,7 @@ function makeFunction(
   { params, body, name }: FunctionDeclarationNode,
   parentScope: Scope
 ): RuntimeFunctionValue {
-  return RuntimeValueBuilders.function(name, (...args: RuntimeValue[]) => {
+  return RuntimeValueBuilders.function(name, (...args: LazyRuntimeValue[]) => {
     const scope = parentScope.with(zip(params, args));
     return run(body, scope);
   });

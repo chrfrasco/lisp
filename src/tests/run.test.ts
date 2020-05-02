@@ -39,7 +39,9 @@ test("can assign variables", () => {
   ]);
   const scope = new Scope();
   run(program, scope);
-  expect(scope.get("x")).toEqual(RuntimeValueBuilders.number(1));
+  const x$ = scope.get("x");
+  expect(x$).toBeDefined();
+  expect(x$!()).toEqual(RuntimeValueBuilders.number(1));
 });
 
 test("function declaration", () => {

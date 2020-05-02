@@ -1,5 +1,7 @@
 import { UnreachableError, Preconditions } from "./preconditions";
 
+export type LazyRuntimeValue = () => RuntimeValue;
+
 export enum RuntimeValueKind {
   STRING = "STRING",
   NUMBER = "NUMBER",
@@ -11,7 +13,7 @@ export enum RuntimeValueKind {
 export type RuntimeFunctionValue = {
   kind: RuntimeValueKind.FUNCTION;
   name: string;
-  value: (...args: RuntimeValue[]) => RuntimeValue;
+  value: (...args: LazyRuntimeValue[]) => RuntimeValue;
 };
 
 export type RuntimeValue =
@@ -24,7 +26,7 @@ export type RuntimeValue =
 export const RuntimeValueBuilders = {
   function(
     name: string,
-    value: (...args: RuntimeValue[]) => RuntimeValue
+    value: (...args: LazyRuntimeValue[]) => RuntimeValue
   ): RuntimeFunctionValue {
     return { kind: RuntimeValueKind.FUNCTION, name, value };
   },
@@ -67,24 +69,29 @@ export const RuntimeValues = {
 };
 
 export class Scope {
-  private readonly variables: Map<string, RuntimeValue>;
+  private readonly variables: Map<string, LazyRuntimeValue>;
 
-  constructor(variables?: [string, RuntimeValue][]) {
+  constructor(variables?: [string, LazyRuntimeValue][]) {
     this.variables = new Map(variables);
+  }
+
+  static fromRuntimeValues(variables: [string, RuntimeValue][]): Scope {
+    return new Scope(variables.map(([name, value]) => [name, () => value]))
   }
 
   static prelude(): Scope {
     // prettier-ignore
-    return new Scope([
+    return Scope.fromRuntimeValues([
       ['nil', RuntimeValueBuilders.nil()],
       ['true', RuntimeValueBuilders.bool(true)],
       ['false', RuntimeValueBuilders.bool(false)],
 
-      ["print", RuntimeValueBuilders.function('print', (...args) => {
-        console.log(...(args.map(RuntimeValues.jsPrimitiveFor)));
+      ["print", RuntimeValueBuilders.function('print', (...args$) => {
+        console.log(...(args$.map(arg => arg()).map(RuntimeValues.jsPrimitiveFor)));
         return RuntimeValueBuilders.nil();
       })],
-      ["concat", RuntimeValueBuilders.function('concat', (...args) => {
+      ["concat", RuntimeValueBuilders.function('concat', (...args$) => {
+        const args = args$.map(arg => arg());
         for (const arg of args) {
           WrongTypeError.assertIs(
             RuntimeValueKind.STRING,
@@ -115,46 +122,48 @@ export class Scope {
       makeBooleanOperator('or', (a, b) => a || b),
       makeBooleanOperator('and', (a, b) => a && b),
       makeBooleanOperator('xor', (a, b) => (a || b) && !(a && b)),
-      ['not', RuntimeValueBuilders.function('not', (x) => {
+      ['not', RuntimeValueBuilders.function('not', (x$) => {
+        const x = x$();
         WrongTypeError.assertIs(RuntimeValueKind.BOOL, x, 'expected x to be a bool');
         return RuntimeValueBuilders.bool(!x.value);
       })],
 
       // branching logic
-      ['if', RuntimeValueBuilders.function('if', (condition, yes, no) => {
+      ['if', RuntimeValueBuilders.function('if', (condition$, yes$, no$) => {
+        const condition = condition$();
         WrongTypeError.assertIs(RuntimeValueKind.BOOL, condition, 'expected condition to be a bool');
 
         // TODO(christianscott): turn these into runtime errors
-        Preconditions.checkState(yes != null, 'if expects a yes argument');
-        Preconditions.checkState(no != null, 'if expects a no argument');
+        Preconditions.checkState(yes$ != null, 'if expects a yes argument');
+        Preconditions.checkState(no$ != null, 'if expects a no argument');
 
-        return condition.value ? yes : no;
+        return condition.value ? yes$() : no$();
       })],
     ]);
   }
 
-  static forTesting(printImpl: (...args: any[]) => void): Scope {
-    const printValue = RuntimeValueBuilders.function("print", (...args) => {
-      printImpl(...args.map(RuntimeValues.jsPrimitiveFor));
+  static forTesting(printImpl: (...args$: any[]) => void): Scope {
+    const printValue = RuntimeValueBuilders.function("print", (...args$) => {
+      printImpl(...args$.map(arg$ => arg$()).map(RuntimeValues.jsPrimitiveFor));
       return RuntimeValueBuilders.nil();
     });
-    return Scope.prelude().with([["print", printValue]]);
+    return Scope.prelude().with([["print", () => printValue]]);
   }
 
   names(): string[] {
     return [...this.variables.keys()];
   }
 
-  with(variables: [string, RuntimeValue][]): Scope {
+  with(variables: [string, LazyRuntimeValue][]): Scope {
     return new Scope([...this.variables.entries(), ...variables]);
   }
 
-  get(name: string): RuntimeValue | undefined {
+  get(name: string): LazyRuntimeValue | undefined {
     return this.variables.get(name);
   }
 
-  assign(name: string, value: RuntimeValue) {
-    this.variables.set(name, value);
+  assign(name: string, value: RuntimeValue | LazyRuntimeValue) {
+    this.variables.set(name, typeof value === 'function' ? value : () => value);
   }
 }
 
@@ -164,7 +173,10 @@ function makeNumberOperator(
 ): [string, RuntimeFunctionValue] {
   const fn = RuntimeValueBuilders.function(
     name,
-    (a: RuntimeValue, b: RuntimeValue) => {
+    (a$, b$) => {
+      const a = a$();
+      const b = b$();
+
       WrongTypeError.assertIs(
         RuntimeValueKind.NUMBER,
         a,
@@ -175,6 +187,7 @@ function makeNumberOperator(
         b,
         `expected b to be a number`
       );
+
       return RuntimeValueBuilders.number(op(a.value, b.value));
     }
   );
@@ -187,7 +200,9 @@ function makeComparisonOperator(
 ): [string, RuntimeFunctionValue] {
   const fn = RuntimeValueBuilders.function(
     name,
-    (a: RuntimeValue, b: RuntimeValue) => {
+    (a$, b$) => {
+      const a = a$();
+      const b = b$();
       WrongTypeError.assertSameType(a, b);
       const valueA = RuntimeValues.jsPrimitiveFor(a);
       const valueB = RuntimeValues.jsPrimitiveFor(b);
@@ -203,7 +218,9 @@ function makeBooleanOperator(
 ): [string, RuntimeFunctionValue] {
   const fn = RuntimeValueBuilders.function(
     name,
-    (a: RuntimeValue, b: RuntimeValue) => {
+    (a$, b$) => {
+      const a = a$();
+      const b = b$();
       WrongTypeError.assertIs(
         RuntimeValueKind.BOOL,
         a,
